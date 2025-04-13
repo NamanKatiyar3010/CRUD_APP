@@ -13,7 +13,8 @@ const Home = () => {
   const page = searchParams.get("page") || "1";
   const searchText = searchParams.get("search") || "";
 
-  const url = `https://crud-vip.vercel.app/api/users?limit=${limit}&page=${page}&search=${searchText}`;
+  let url = import.meta.env.VITE_API_APP_URL;
+  url = url + `?limit=${limit}&page=${page}&search=${searchText}`;
   const shouldSkipApi = data && Array.isArray(data) && data.length > 0 && !searchText && page === "1";
 
   const { loading, error } = ApiCall(
