@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import { useAppContext } from "../GlobalContext/AppContent";
+import { useNavigate } from "react-router-dom"; 
+
 
 const AddData = () => {
+  const {data, setData} = useAppContext();
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState(false);
 
@@ -26,32 +31,40 @@ const AddData = () => {
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
-
+  
       for (const key in data) {
         formData.append(key, data[key]);
       }
-
+  
       formData.append("status", status);
       formData.append("image", file);
-
+  
       const response = await fetch("https://crud-vip.vercel.app/api/users", {
         method: "POST",
         body: formData,
       });
-
+  
       const result = await response.json();
-
+  
       if (!response.ok) throw new Error(result.message || "Failed to add user");
-
+  
+      setData((prev) => [...(prev || []), result.data]);
+      console.log(result.data);
+      
+  
       toast.success("✅ User added successfully!");
-      reset(); // reset form only
+  
+      reset();
       setFile(null);
       setStatus(false);
+  
+      navigate("/");
     } catch (error) {
       console.error(error);
       toast.error("❌ Failed to add user.");
     }
   };
+  
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>

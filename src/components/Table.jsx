@@ -1,4 +1,5 @@
 import React from "react";
+import SkeletonRow from "./SkeletonRow";
 
 const Table = ({ headers, loading, data, onUserClick }) => {
   return (
@@ -16,11 +17,13 @@ const Table = ({ headers, loading, data, onUserClick }) => {
           </>
         </thead>
         <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan="4">Loading...</td>
-            </tr>
-          ) : (
+        {loading ? (
+  <>
+    <SkeletonRow columns={headers.length} />
+    <SkeletonRow columns={headers.length} />
+    <SkeletonRow columns={headers.length} />
+  </>
+) : (
             <>
               {data?.map((item, index) => (
                 <>
