@@ -4,7 +4,9 @@ import Home from "./components/Home";
 import AddData from "./components/AddData";
 import Detail from "./components/Detail";
 import Layout from "./components/Layout";
-import { AppProvider } from "./GlobalContext/AppContent";
+// import { AppProvider } from "./GlobalContext/AppContent";
+import { Provider } from "react-redux";
+import store from "../store";
 
 const router = createBrowserRouter([
   {
@@ -33,11 +35,15 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
-      <AppProvider>
+      {/* <AppProvider> */}
+      <Provider store={store}>
         <RouterProvider router={router} />
-      </AppProvider>
+      </Provider>
+
+      {/* </AppProvider> */}
     </>
   );
 }
 
 export default App;
+MimeType

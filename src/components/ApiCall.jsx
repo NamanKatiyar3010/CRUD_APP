@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../GlobalContext/AppContent";
 
-const ApiCall = (url, method = "GET", dependency = [], shouldFetch = true) => {
+const ApiCall = (
+  url,
+  method = "GET",
+  dependency = [],
+  shouldFetch = true,
+  shouldUpdateGlobal = true 
+) => {
   const { setData, setTotalData } = useAppContext();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  // const [totalData, setTotalData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,11 +26,11 @@ const ApiCall = (url, method = "GET", dependency = [], shouldFetch = true) => {
 
         if (!response.ok) throw new Error(result.message || "API call failed");
 
-        if (result?.data) {
+        if (result?.data && shouldUpdateGlobal) {
           setData(result.data);
         }
 
-        if (result?.totalData !== undefined) {
+        if (result?.totalData !== undefined && shouldUpdateGlobal) {
           setTotalData(result.totalData);
         }
 
@@ -42,4 +47,4 @@ const ApiCall = (url, method = "GET", dependency = [], shouldFetch = true) => {
   return { loading, error };
 };
 
-export default ApiCall
+export default ApiCall;

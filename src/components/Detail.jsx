@@ -1,33 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAppContext } from "../GlobalContext/AppContent";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSingleUser, clearSingleUser } from "../slices/userSlice";
 
 const Detail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: globalData } = useAppContext();
+  const dispatch = useDispatch();
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { singleUser, loading, error } = useSelector((state) => state.users);
 
   useEffect(() => {
-    const localUser = globalData?.find((u) => u._id === id);
+    if (id) dispatch(fetchSingleUser(id));
 
-    if (localUser) {
-      setUser(localUser);
-      setLoading(false);
-    } else {
-      fetch(`https://crud-vip.vercel.app/api/users/${id}`)
-        .then((res) => res.json())
-        .then((res) => {
-          if (res?.data) setUser(res.data);
-          else throw new Error("User not found");
-        })
-        .catch((err) => setError(err))
-        .finally(() => setLoading(false));
-    }
-  }, [id, globalData]);
+    return () => {
+      dispatch(clearSingleUser());
+    };
+  }, [id, dispatch]);
 
   if (loading) return <p>Loading user data...</p>;
 
@@ -35,18 +24,20 @@ const Detail = () => {
     return (
       <div style={{ color: "red" }}>
         <h3>⚠️ Error loading user</h3>
-        <p>{error.message || "Something went wrong"}</p>
+        <p>{error}</p>
         <button onClick={() => navigate("/")}>Back</button>
       </div>
     );
 
-  if (!user)
+  if (!singleUser)
     return (
       <div>
         <p>No user data found.</p>
         <button onClick={() => navigate("/")}>Back</button>
       </div>
     );
+
+  const user = singleUser;
 
   return (
     <div

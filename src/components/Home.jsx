@@ -1,32 +1,46 @@
 import Pagination from "./Pagination";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import Table from "./Table";
-import ApiCall from "./ApiCall";
-import { useAppContext } from "../GlobalContext/AppContent";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchUsers } from "../slices/userSlice";
 
 const Home = () => {
-  const { data, totalData } = useAppContext();
+  const { users: data, totalUsers: totalData, loading, error, isUsersLoaded } = useSelector(
+    (state) => state.users
+  );
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+console.log(data,'data');
 
-  const limit = searchParams.get("limit") || "10";
+  const limit = searchParams.get("limit") || "5";
   const page = searchParams.get("page") || "1";
   const searchText = searchParams.get("search") || "";
 
-  let url = import.meta.env.VITE_API_APP_URL;
-  url = url + `?limit=${limit}&page=${page}&search=${searchText}`;
-  const shouldSkipApi = data && Array.isArray(data) && data.length > 0 && !searchText && page === "1";
+  const fromAddUser = location.state?.fromAddUser;
 
-  const { loading, error } = ApiCall(
-    url,
-    "GET",
-    [page, searchText],
-    !shouldSkipApi
-  );
-  console.log(totalData);
-  
+  useEffect(() => {
+    if (
+      location.pathname === "/" &&
+      !searchText &&
+      searchParams.has("search")
+    ) {
+      searchParams.delete("search");
+      setSearchParams(searchParams);
+    }
+  }, [location, searchParams, searchText, setSearchParams]);
+
+  useEffect(() => {
+    if (!isUsersLoaded || fromAddUser) {
+      dispatch(fetchUsers({ page, limit, search: searchText }));
+    }
+  }, [dispatch, page, limit, searchText, fromAddUser, isUsersLoaded]);
+
+  // Filter out users with empty names
   const filteredData = data?.filter((item) => item?.name?.trim() !== "") || [];
-  const totalPages = Math.ceil(totalData / limit);
+  const totalPages = Math.ceil(totalData / parseInt(limit));
 
   const handleChange = (id) => {
     navigate(`/user/${id}`);
@@ -46,7 +60,7 @@ const Home = () => {
       id: obj._id,
     },
     name: { text: obj.name },
-    email: obj.email,
+    email: { text: obj.email },
     status: obj.status ? "active" : "inactive",
   }));
 

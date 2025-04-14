@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import { useAppContext } from "../GlobalContext/AppContent";
-import { useNavigate } from "react-router-dom"; 
-
+import { useDispatch, useSelector } from "react-redux";
+import { addUser } from "../slices/userSlice";
 
 const AddData = () => {
-  const {data, setData} = useAppContext();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState(false);
+  const { loading } = useSelector((state) => state.users);
 
   const {
     register,
@@ -28,43 +28,28 @@ const AddData = () => {
     },
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (formValues) => {
     try {
       const formData = new FormData();
-  
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-  
+      Object.entries(formValues).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
+
       formData.append("status", status);
-      formData.append("image", file);
-  
-      const response = await fetch("https://crud-vip.vercel.app/api/users", {
-        method: "POST",
-        body: formData,
-      });
-  
-      const result = await response.json();
-  
-      if (!response.ok) throw new Error(result.message || "Failed to add user");
-  
-      setData((prev) => [...(prev || []), result.data]);
-      console.log(result.data);
-      
-  
+      if (file) formData.append("image", file);
+
+      const res = await dispatch(addUser(formData)).unwrap();
+
       toast.success("✅ User added successfully!");
-  
       reset();
       setFile(null);
       setStatus(false);
-  
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-      toast.error("❌ Failed to add user.");
+      navigate("/", { state: { fromAddUser: true } });
+    } catch (err) {
+      console.error(err);
+      toast.error(`❌ ${err.message || "Failed to add user."}`);
     }
   };
-  
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
@@ -86,32 +71,25 @@ const AddData = () => {
         <h1 style={{ textAlign: "center" }}>Enter Your Details</h1>
 
         {/* Name */}
-        <label style={{ display: "flex", flexDirection: "column", fontWeight: 600 }}>
+        <label>
           Name:
           <input
             {...register("name", {
               required: "Name is required",
+              minLength: { value: 3, message: "Min 3 characters" },
+              maxLength: { value: 50, message: "Max 50 characters" },
               pattern: {
                 value: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
                 message: "Only letters and spaces allowed",
               },
-              minLength: { value: 3, message: "Min 3 characters" },
-              maxLength: { value: 50, message: "Max 50 characters" },
             })}
-            placeholder="e.g., John Doe"
-            style={{
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-            }}
+            placeholder="e.g., Naman Katiyar"
           />
-          {errors.name && (
-            <p style={{ color: "red", fontSize: "0.85rem" }}>{errors.name.message}</p>
-          )}
+          {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
         </label>
 
         {/* Email */}
-        <label style={{ display: "flex", flexDirection: "column", fontWeight: 600 }}>
+        <label>
           Email:
           <input
             type="email"
@@ -119,23 +97,16 @@ const AddData = () => {
               required: "Email is required",
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Enter valid email",
+                message: "Enter a valid email",
               },
             })}
             placeholder="e.g., email@mail.com"
-            style={{
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-            }}
           />
-          {errors.email && (
-            <p style={{ color: "red", fontSize: "0.85rem" }}>{errors.email.message}</p>
-          )}
+          {errors.email && <p style={{ color: "red" }}>{errors.email.message}</p>}
         </label>
 
         {/* Phone */}
-        <label style={{ display: "flex", flexDirection: "column", fontWeight: 600 }}>
+        <label>
           Phone:
           <input
             type="tel"
@@ -143,68 +114,39 @@ const AddData = () => {
               required: "Phone is required",
               pattern: {
                 value: /^([0-9])(?!\1{9})([0-9]{9})$/,
-                message: "Enter 10-digit number",
+                message: "Enter a valid 10-digit number",
               },
             })}
             placeholder="e.g., 9876543210"
-            style={{
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-            }}
           />
-          {errors.phone && (
-            <p style={{ color: "red", fontSize: "0.85rem" }}>{errors.phone.message}</p>
-          )}
+          {errors.phone && <p style={{ color: "red" }}>{errors.phone.message}</p>}
         </label>
 
         {/* Location */}
-        <label style={{ display: "flex", flexDirection: "column", fontWeight: 600 }}>
+        <label>
           Location:
           <input
             type="text"
             {...register("location", { required: "Location is required" })}
             placeholder="e.g., Delhi"
-            style={{
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-            }}
           />
-          {errors.location && (
-            <p style={{ color: "red", fontSize: "0.85rem" }}>{errors.location.message}</p>
-          )}
+          {errors.location && <p style={{ color: "red" }}>{errors.location.message}</p>}
         </label>
 
         {/* About */}
-        <label style={{ display: "flex", flexDirection: "column", fontWeight: 600 }}>
+        <label>
           About:
           <textarea
             {...register("about", {
               maxLength: { value: 200, message: "Max 200 characters" },
             })}
             placeholder="Tell us something about yourself"
-            style={{
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-              resize: "vertical",
-            }}
           />
-          {errors.about && (
-            <p style={{ color: "red", fontSize: "0.85rem" }}>{errors.about.message}</p>
-          )}
+          {errors.about && <p style={{ color: "red" }}>{errors.about.message}</p>}
         </label>
 
         {/* Status Checkbox */}
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            fontWeight: 500,
-            gap: "10px",
-          }}
-        >
+        <label>
           <input
             type="checkbox"
             checked={status}
@@ -214,7 +156,7 @@ const AddData = () => {
         </label>
 
         {/* File Upload */}
-        <label style={{ display: "flex", flexDirection: "column", fontWeight: 600 }}>
+        <label>
           Upload Image:
           <input
             type="file"
@@ -223,40 +165,32 @@ const AddData = () => {
           />
         </label>
 
-        {/* Image Preview */}
         {file && (
           <img
             src={URL.createObjectURL(file)}
             alt="Preview"
-            style={{
-              maxWidth: "150px",
-              height: "auto",
-              marginTop: "10px",
-              borderRadius: "8px",
-              objectFit: "cover",
-            }}
+            style={{ maxWidth: "150px", borderRadius: "8px", objectFit: "cover" }}
           />
         )}
 
-        {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={loading || isSubmitting}
           style={{
             padding: "10px 16px",
-            border: "none",
             background: "#007bff",
             color: "white",
             fontWeight: "bold",
             borderRadius: "6px",
-            cursor: isSubmitting ? "not-allowed" : "pointer",
-            opacity: isSubmitting ? 0.6 : 1,
+            border: "none",
+            cursor: "pointer",
+            opacity: loading || isSubmitting ? 0.6 : 1,
           }}
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {loading || isSubmitting ? "Submitting..." : "Submit"}
         </button>
 
-        <Link to="/" style={{ textDecoration: "none" }}>
+        <Link to="/">
           <button
             type="button"
             style={{
