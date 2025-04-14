@@ -13,7 +13,6 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-console.log(data,'data');
 
   const limit = searchParams.get("limit") || "5";
   const page = searchParams.get("page") || "1";
@@ -38,7 +37,6 @@ console.log(data,'data');
     }
   }, [dispatch, page, limit, searchText, fromAddUser, isUsersLoaded]);
 
-  // Filter out users with empty names
   const filteredData = data?.filter((item) => item?.name?.trim() !== "") || [];
   const totalPages = Math.ceil(totalData / parseInt(limit));
 

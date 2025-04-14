@@ -20,7 +20,6 @@ const Navbar = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       navigate(`/users?search=${search}&page=1&limit=10`);
-      // setSearch('');
     }
   };
 

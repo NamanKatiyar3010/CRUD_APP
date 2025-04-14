@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const Pagination = ({ num, setSearchParams, searchParams, limit }) => {
   const navigate = useNavigate();
-  const currentPage = parseInt(searchParams.get("page") || 1, 10); // Default to page 1
+  const currentPage = parseInt(searchParams.get("page") || 1, 10);
 
   const handleChange = (page) => {
     searchParams.set("page", page + 1);

@@ -47,7 +47,7 @@ const AddData = () => {
       navigate("/", { state: { fromAddUser: true } });
     } catch (err) {
       console.error(err);
-      toast.error(`❌ ${err.message || "Failed to add user."}`);
+      toast.error(`${err.message || "Failed to add user."}`);
     }
   };
 
@@ -70,7 +70,6 @@ const AddData = () => {
       >
         <h1 style={{ textAlign: "center" }}>Enter Your Details</h1>
 
-        {/* Name */}
         <label>
           Name:
           <input
@@ -88,7 +87,6 @@ const AddData = () => {
           {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
         </label>
 
-        {/* Email */}
         <label>
           Email:
           <input
@@ -105,7 +103,6 @@ const AddData = () => {
           {errors.email && <p style={{ color: "red" }}>{errors.email.message}</p>}
         </label>
 
-        {/* Phone */}
         <label>
           Phone:
           <input
@@ -122,7 +119,6 @@ const AddData = () => {
           {errors.phone && <p style={{ color: "red" }}>{errors.phone.message}</p>}
         </label>
 
-        {/* Location */}
         <label>
           Location:
           <input
@@ -133,7 +129,6 @@ const AddData = () => {
           {errors.location && <p style={{ color: "red" }}>{errors.location.message}</p>}
         </label>
 
-        {/* About */}
         <label>
           About:
           <textarea
@@ -145,7 +140,6 @@ const AddData = () => {
           {errors.about && <p style={{ color: "red" }}>{errors.about.message}</p>}
         </label>
 
-        {/* Status Checkbox */}
         <label>
           <input
             type="checkbox"
@@ -155,7 +149,6 @@ const AddData = () => {
           Active Status
         </label>
 
-        {/* File Upload */}
         <label>
           Upload Image:
           <input
