@@ -53,11 +53,27 @@ const Home = () => {
     navigate(`/user/${id}`);
   };
 
-  const handleStatusToggle= (id,status)=>{
-    console.log('button clicked', id , status);
-    dispatch(upDateUserStatus({id,status}));
-    
-  }
+  const handleStatusToggle = async (id, status) => {
+    let attempts = 0;
+    const maxAttempts = 3;
+  
+    while (attempts < maxAttempts) {
+      const actionResult = await dispatch(upDateUserStatus({ id, status }));
+  
+      if (!upDateUserStatus.rejected.match(actionResult)) break;
+  
+      const shouldRetry = window.confirm(
+        `❌ Failed to update status.\n\nAttempt ${attempts + 1} of ${maxAttempts}.\nDo you want to try again?`
+      );
+  
+      if (!shouldRetry) break;
+  
+      attempts++;
+    }
+  };
+  
+  
+  
   const headers = [
     { name: "Sno" },
     { name: "Name" },

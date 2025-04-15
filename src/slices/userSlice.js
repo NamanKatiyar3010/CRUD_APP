@@ -1,10 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiThunkWrapper } from "./apiThunkWrapper";
+
 
 const url = import.meta.env.VITE_API_APP_URL;
+
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
-  async ({ limit, page, search }, thunkAPI) => {
-    try {
+  async ({ limit, page, search }, thunkAPI) =>
+    apiThunkWrapper(async () => {
       const query = new URLSearchParams({
         limit: limit || 10,
         page: page || 1,
@@ -15,76 +18,49 @@ export const fetchUsers = createAsyncThunk(
 
       if (!res.ok) throw new Error(data.message || "Failed to fetch users");
       return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.message || "An unexpected error occurred"
-      );
-    }
-  }
+    }, thunkAPI)
 );
 
 export const fetchSingleUser = createAsyncThunk(
   "users/fetchSingleUser",
-  async (id, thunkAPI) => {
-    try {
+  async (id, thunkAPI) =>
+    apiThunkWrapper(async () => {
       const res = await fetch(`${url}/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch user");
       return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.message || "An unexpected error occurred"
-      );
-    }
-  }
+    }, thunkAPI)
 );
 
 export const addUser = createAsyncThunk(
   "users/addUser",
-
-  async (formData, thunkAPI) => {
-    try {
+  async (formData, thunkAPI) =>
+    apiThunkWrapper(async () => {
       const res = await fetch(url, {
         method: "POST",
-        // headers: formData,
         body: formData,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add user");
       return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.message || "An unexpected error occurred"
-      );
-    }
-  }
+    }, thunkAPI)
 );
 
 export const upDateUserStatus = createAsyncThunk(
   "users/updateStatus",
-  async ({id, status}, thunkAPI) => {
-    try {
-      let new_url = url + `/${id}/status`;
-      console.log(id,status);
-      
-      const res = await fetch(new_url, {
+  async ({ id, status }, thunkAPI) =>
+    apiThunkWrapper(async () => {
+      const res = await fetch(`${url}/${id}/status`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status:status }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
       });
-      const result = await res.json();
-      console.log(result,'result............');
-      
-      if (!res.ok) throw new Error(result.message || "Failed to add user");
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.message || "An unexpected error occurred"
-      );
-    }
-  }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update status");
+      return data;
+    }, thunkAPI)
 );
+
 
 const initialState = {
   users: [],
@@ -106,6 +82,7 @@ const userSlice = createSlice({
       state.isUsersLoaded = false;
     },
   },
+  
   extraReducers: (builder) => {
     builder
 
@@ -169,15 +146,15 @@ const userSlice = createSlice({
       })
       .addCase(upDateUserStatus.fulfilled, (state, action) => {
         state.loading = false;
-        let statId = action.meta.arg.id
-        state.users = state.users.map(user => {
-if(user._id == statId){
-  let {status , ...rest } = user
-  return { ...rest , status: !status}
-}else{ 
-  return user
-}
-        })
+        let statId = action.meta.arg.id;
+        state.users = state.users.map((user) => {
+          if (user._id == statId) {
+            let { status, ...rest } = user;
+            return { ...rest, status: !status };
+          } else {
+            return user;
+          }
+        });
       })
       .addCase(upDateUserStatus.rejected, (state, action) => {
         state.loading = false;

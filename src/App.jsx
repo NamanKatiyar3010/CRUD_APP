@@ -7,6 +7,7 @@ import Layout from "./components/Layout";
 // import { AppProvider } from "./GlobalContext/AppContent";
 import { Provider } from "react-redux";
 import store from "../store";
+import WrongPage from "./components/WrongPage";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
         path: "addData",
         element: <AddData />,
       },
+      {
+        path: "*",
+        element: <WrongPage />,
+      },
     ],
   },
 ]);
@@ -46,4 +51,4 @@ function App() {
 }
 
 export default App;
-MimeType
+MimeType;
