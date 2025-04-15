@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "../slices/userSlice";
+import { addUser, updateUser, fetchSingleUser, clearSingleUser } from "../slices/userSlice";
+import { useNavigate, useParams } from "react-router-dom";
 
-const AddData = () => {
+const UserForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState(false);
-  const { loading } = useSelector((state) => state.users);
+  console.log(id);
+  
+
+  const { singleUser, loading } = useSelector((state) => state.users);
 
   const {
     register,
@@ -24,9 +29,47 @@ const AddData = () => {
       email: "",
       phone: "",
       location: "",
-      about: "This is example info",
+      about: "",
     },
   });
+
+  useEffect(() => {
+    if (isEditMode){
+      
+      dispatch(fetchSingleUser(id));
+    }
+  }, [dispatch, id, isEditMode]);
+
+  useEffect(() => {
+    if (isEditMode && singleUser) {
+      reset({
+        name: singleUser.name,
+        email: singleUser.email,
+        phone: singleUser.phone,
+        location: singleUser.location,
+        about: singleUser.about,
+        image : singleUser.image,
+      });
+      // console.log();
+      
+      setStatus(singleUser.status);
+    }
+  }, [singleUser, reset, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode) {
+      dispatch(clearSingleUser());
+      reset({
+        name: "",
+        email: "",
+        phone: "",
+        location: "",
+        about: "",
+      });
+      setFile(null);
+      setStatus(false);
+    }
+  }, [isEditMode, dispatch, reset]);
 
   const onSubmit = async (formValues) => {
     try {
@@ -34,22 +77,36 @@ const AddData = () => {
       Object.entries(formValues).forEach(([key, value]) =>
         formData.append(key, value)
       );
-
       formData.append("status", status);
       if (file) formData.append("image", file);
 
-      const res = await dispatch(addUser(formData)).unwrap();
+      if (isEditMode) {
+        await dispatch(updateUser({ id, formData }));
 
-      toast.success("✅ User added successfully!");
+        toast.success("✅ User updated successfully!");
+      } else {
+        await dispatch(addUser(formData)).unwrap();
+        toast.success("✅ User added successfully!");
+      }
+
       reset();
       setFile(null);
       setStatus(false);
-      navigate("/", { state: { fromAddUser: true } });
+      navigate("/");
     } catch (err) {
       console.error(err);
-      toast.error(`${err.message || "Failed to add user."}`);
+      toast.error(err.message || "Operation failed");
     }
   };
+  console.log(singleUser,'cvncvn');
+  if (isEditMode && loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "4rem" }}>
+        <h2>Loading user data...</h2>
+      </div>
+    );
+  }  
+  
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
@@ -68,7 +125,9 @@ const AddData = () => {
           boxShadow: "0 0 10px #ddd",
         }}
       >
-        <h1 style={{ textAlign: "center" }}>Enter Your Details</h1>
+        <h1 style={{ textAlign: "center" }}>
+          {isEditMode ? "Update User" : "Enter Your Details"}
+        </h1>
 
         <label>
           Name:
@@ -180,29 +239,34 @@ const AddData = () => {
             opacity: loading || isSubmitting ? 0.6 : 1,
           }}
         >
-          {loading || isSubmitting ? "Submitting..." : "Submit"}
+          {loading || isSubmitting
+            ? isEditMode
+              ? "Updating..."
+              : "Submitting..."
+            : isEditMode
+            ? "Update"
+            : "Submit"}
         </button>
 
-        <Link to="/">
-          <button
-            type="button"
-            style={{
-              padding: "10px 16px",
-              background: "#6c757d",
-              color: "white",
-              fontWeight: "bold",
-              borderRadius: "6px",
-              border: "none",
-              marginTop: "10px",
-              cursor: "pointer",
-            }}
-          >
-            ⬅ Back
-          </button>
-        </Link>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          style={{
+            padding: "10px 16px",
+            background: "#6c757d",
+            color: "white",
+            fontWeight: "bold",
+            borderRadius: "6px",
+            border: "none",
+            marginTop: "10px",
+            cursor: "pointer",
+          }}
+        >
+          ⬅ Back
+        </button>
       </form>
     </div>
   );
 };
 
-export default AddData;
+export default UserForm;

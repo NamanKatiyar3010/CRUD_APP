@@ -34,6 +34,10 @@ const router = createBrowserRouter([
         path: "*",
         element: <WrongPage />,
       },
+      {
+        path: "/users/:id",
+        element: <AddData />,
+      }
     ],
   },
 ]);

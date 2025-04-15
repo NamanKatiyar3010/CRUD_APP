@@ -5,6 +5,10 @@ const Navbar = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const pathname = location.pathname;
+
+  const hideSearch =
+    pathname === "/addData" || /^\/users\/[^/]+$/.test(pathname);
   // console.log(location);
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -44,25 +48,27 @@ const Navbar = () => {
         >
           Home
         </Link>
-        <Link to="/adddata" style={{ color: "white", textDecoration: "none" }}>
+        <Link to="/addData" style={{ color: "white", textDecoration: "none" }}>
           Add Data
         </Link>
       </div>
-      <div>
-        <input
-          type="search"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleKeyDown}
-          style={{
-            padding: "6px 10px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            outline: "none",
-          }}
-        />
-      </div>
+      {!hideSearch && (
+        <div>
+          <input
+            type="search"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{
+              padding: "6px 10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              outline: "none",
+            }}
+          />
+        </div>
+      )}
     </nav>
   );
 };

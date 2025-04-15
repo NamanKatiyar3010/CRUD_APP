@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiThunkWrapper } from "./apiThunkWrapper";
 
-
 const url = import.meta.env.VITE_API_APP_URL;
 
 export const fetchUsers = createAsyncThunk(
@@ -61,6 +60,32 @@ export const upDateUserStatus = createAsyncThunk(
     }, thunkAPI)
 );
 
+export const deleteUser = createAsyncThunk(
+  "users/deleteUser",
+  async (id, thunkAPI) =>
+    apiThunkWrapper(async () => {
+      const res = await fetch(`${url}/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update status");
+      return data;
+    }, thunkAPI)
+);
+
+export const updateUser = createAsyncThunk(
+  "user/updateUser",
+  async ({ id, formData }, thunkApi) =>
+    apiThunkWrapper(async () => {
+      const res = await fetch(`${url}/${id}`, {
+        method: "PUT",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to add user");
+      return data;
+    }, thunkApi)
+);
 
 const initialState = {
   users: [],
@@ -82,10 +107,10 @@ const userSlice = createSlice({
       state.isUsersLoaded = false;
     },
   },
-  
+
   extraReducers: (builder) => {
     builder
-
+      //-----------fetch all user----------------------
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -101,7 +126,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
+      //---------fetch single user------------------
       .addCase(fetchSingleUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -114,7 +139,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
+      //--------add user-------------------------
       .addCase(addUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -139,7 +164,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
+      //----------update user------------------
       .addCase(upDateUserStatus.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -159,6 +184,22 @@ const userSlice = createSlice({
       .addCase(upDateUserStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      //----------delete user------------------
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = state.users.filter(
+          (user) => user._id !== action.meta.arg.id
+        );
+        state.totalUsers -= 1;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error;
       });
   },
 });

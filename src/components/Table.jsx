@@ -1,7 +1,15 @@
 import React from "react";
 import SkeletonRow from "./SkeletonRow";
 
-const Table = ({ headers, loading, data, onUserClick, onStatusToggle }) => {
+const Table = ({
+  headers,
+  loading,
+  data,
+  onUserClick,
+  onStatusToggle,
+  onDelete,
+  onUpdate,
+}) => {
   return (
     <table>
       <thead>
@@ -26,29 +34,44 @@ const Table = ({ headers, loading, data, onUserClick, onStatusToggle }) => {
                   typeof value === "object" && value?.onclick;
 
                 const isStatusButton = value?.isStatusButton;
+                const isActions = value?.isActions;
 
                 return (
                   <td
                     key={idx}
                     onClick={
-                      isClickableObj && !isStatusButton
+                      isClickableObj && !isStatusButton && !isActions
                         ? () => onUserClick?.(value.id)
                         : undefined
                     }
                     style={
-                      isClickableObj && !isStatusButton
+                      isClickableObj && !isStatusButton && !isActions
                         ? { cursor: "pointer" }
                         : {}
                     }
                   >
                     {isStatusButton ? (
                       <button
-                        onClick={() =>
-                          onStatusToggle(value.id, !value.checked)
-                        }
+                        onClick={() => onStatusToggle(value.id, !value.checked)}
+                        style={{ marginRight: "0.5rem" }}
                       >
                         {value.checked ? "active" : "inactive"}
                       </button>
+                    ) : isActions ? (
+                      <>
+                        <button
+                          onClick={() => onUpdate?.(value.id)}
+                          style={{ marginRight: "0.5rem" }}
+                        >
+                          Update
+                        </button>
+                        <button
+                          onClick={() => onDelete?.(value.id)}
+                          style={{ color: "red" }}
+                        >
+                          Delete
+                        </button>
+                      </>
                     ) : typeof value === "object" ? (
                       value?.text
                     ) : (
@@ -64,6 +87,5 @@ const Table = ({ headers, loading, data, onUserClick, onStatusToggle }) => {
     </table>
   );
 };
-
 
 export default Table;

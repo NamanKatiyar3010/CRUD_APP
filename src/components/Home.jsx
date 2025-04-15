@@ -1,11 +1,21 @@
 import Pagination from "./Pagination";
 import Table from "./Table";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
-import { fetchUsers, resetUsersLoaded, upDateUserStatus } from "../slices/userSlice";
+import {
+  fetchUsers,
+  resetUsersLoaded,
+  upDateUserStatus,
+  deleteUser,
+} from "../slices/userSlice";
+import PopupBox from "../PopupBox";
 
 const Home = () => {
+  const [isPopUpOpen, setPopUpOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [statusRetryData, setStatusRetryData] = useState(null); // { id, status, attempts }
+
   const {
     users: data,
     totalUsers: totalData,
@@ -24,7 +34,11 @@ const Home = () => {
   const searchText = searchParams.get("search") || "";
 
   useEffect(() => {
-    if (location.pathname === "/" && !searchText && searchParams.has("search")) {
+    if (
+      location.pathname === "/" &&
+      !searchText &&
+      searchParams.has("search")
+    ) {
       const updatedParams = new URLSearchParams(searchParams);
       updatedParams.delete("search");
       setSearchParams(updatedParams);
@@ -37,9 +51,7 @@ const Home = () => {
 
   useEffect(() => {
     const isPageOne = Number(page) === 1;
-
-    const shouldFetch =
-      !isUsersLoaded || (!isPageOne && data.length === 0);
+    const shouldFetch = !isUsersLoaded || (!isPageOne && data.length === 0);
 
     if (shouldFetch) {
       dispatch(fetchUsers({ page, limit, search: searchText }));
@@ -54,31 +66,65 @@ const Home = () => {
   };
 
   const handleStatusToggle = async (id, status) => {
-    let attempts = 0;
-    const maxAttempts = 3;
-  
-    while (attempts < maxAttempts) {
-      const actionResult = await dispatch(upDateUserStatus({ id, status }));
-  
-      if (!upDateUserStatus.rejected.match(actionResult)) break;
-  
-      const shouldRetry = window.confirm(
-        `❌ Failed to update status.\n\nAttempt ${attempts + 1} of ${maxAttempts}.\nDo you want to try again?`
-      );
-  
-      if (!shouldRetry) break;
-  
-      attempts++;
+    const actionResult = await dispatch(upDateUserStatus({ id, status }));
+
+    if (upDateUserStatus.rejected.match(actionResult)) {
+      // First failure, show retry popup
+      setStatusRetryData({ id, status, attempts: 1 });
     }
   };
-  
-  
-  
+
+  const confirmStatusRetry = async () => {
+    if (!statusRetryData) return;
+
+    const { id, status, attempts } = statusRetryData;
+    const actionResult = await dispatch(upDateUserStatus({ id, status }));
+
+    if (upDateUserStatus.rejected.match(actionResult)) {
+      if (attempts + 1 < 3) {
+        setStatusRetryData({ id, status, attempts: attempts + 1 });
+      } else {
+        alert("Max retry attempts reached.");
+        setStatusRetryData(null);
+      }
+    } else {
+      setStatusRetryData(null); // success
+    }
+  };
+
+  const cancelStatusRetry = () => {
+    setStatusRetryData(null);
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setPopUpOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId) {
+      try {
+        await dispatch(deleteUser(deleteId));
+        dispatch(fetchUsers({ page, limit, search: searchText }));
+      } catch (error) {
+        alert("Failed to delete user. Please try again.");
+      } finally {
+        setDeleteId(null);
+        setPopUpOpen(false);
+      }
+    }
+  };
+
+  const handleUpdate = async (id) => {
+    navigate(`/users/${id}`);
+  };
+
   const headers = [
     { name: "Sno" },
     { name: "Name" },
     { name: "Email" },
     { name: "Status" },
+    { name: "Actions" },
   ];
 
   const updatedData = filteredData.map((obj, index) => ({
@@ -92,6 +138,10 @@ const Home = () => {
     status: {
       isStatusButton: true,
       checked: obj.status,
+      id: obj._id,
+    },
+    actions: {
+      isActions: true,
       id: obj._id,
     },
   }));
@@ -118,6 +168,8 @@ const Home = () => {
             data={updatedData}
             onUserClick={handleChange}
             onStatusToggle={handleStatusToggle}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
           />
           <Pagination
             num={totalPages}
@@ -128,6 +180,35 @@ const Home = () => {
           />
         </>
       )}
+
+      {/* 🧾 Delete Confirmation Popup */}
+      <PopupBox
+        isOpen={isPopUpOpen}
+        onClose={() => setPopUpOpen(false)}
+        title="Confirm Deletion"
+        footer={
+          <>
+            <button onClick={() => setPopUpOpen(false)}>Cancel</button>
+            <button onClick={confirmDelete}>Delete</button>
+          </>
+        }
+      >
+        <p>Are you sure you want to delete this user?</p>
+      </PopupBox>
+      <PopupBox
+        isOpen={!!statusRetryData}
+        onClose={cancelStatusRetry}
+        title="Status Update Failed"
+        footer={
+          <>
+            <button onClick={cancelStatusRetry}>Cancel</button>
+            <button onClick={confirmStatusRetry}>Retry</button>
+          </>
+        }
+      >
+        <p>Failed to update status. Do you want to retry?</p>
+        <p>Attempt {statusRetryData?.attempts} of 3</p>
+      </PopupBox>
     </div>
   );
 };
