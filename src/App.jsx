@@ -37,19 +37,16 @@ const router = createBrowserRouter([
       {
         path: "/users/:id",
         element: <AddData />,
-      }
+      },
     ],
   },
 ]);
 function App() {
   return (
     <>
-      {/* <AppProvider> */}
       <Provider store={store}>
         <RouterProvider router={router} />
       </Provider>
-
-      {/* </AppProvider> */}
     </>
   );
 }

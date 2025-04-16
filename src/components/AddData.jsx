@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser, updateUser, fetchSingleUser, clearSingleUser } from "../slices/userSlice";
+import {
+  addUser,
+  updateUser,
+  fetchSingleUser,
+  clearSingleUser,
+} from "../slices/userSlice";
 import { useNavigate, useParams } from "react-router-dom";
 
 const UserForm = () => {
@@ -13,7 +18,6 @@ const UserForm = () => {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState(false);
   console.log(id);
-  
 
   const { singleUser, loading } = useSelector((state) => state.users);
 
@@ -34,8 +38,7 @@ const UserForm = () => {
   });
 
   useEffect(() => {
-    if (isEditMode){
-      
+    if (isEditMode) {
       dispatch(fetchSingleUser(id));
     }
   }, [dispatch, id, isEditMode]);
@@ -48,10 +51,9 @@ const UserForm = () => {
         phone: singleUser.phone,
         location: singleUser.location,
         about: singleUser.about,
-        image : singleUser.image,
+        image: singleUser.image,
       });
-      // console.log();
-      
+
       setStatus(singleUser.status);
     }
   }, [singleUser, reset, isEditMode]);
@@ -98,18 +100,17 @@ const UserForm = () => {
       toast.error(err.message || "Operation failed");
     }
   };
-  console.log(singleUser,'cvncvn');
+  console.log(singleUser, "cvncvn");
   if (isEditMode && loading) {
     return (
       <div style={{ textAlign: "center", marginTop: "4rem" }}>
         <h2>Loading user data...</h2>
       </div>
     );
-  }  
-  
+  }
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
+    <div className="grid gap-6 mb-6 md:grid-cols-2 justify-center items-center">
       <Toaster position="top-right" />
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -128,10 +129,12 @@ const UserForm = () => {
         <h1 style={{ textAlign: "center" }}>
           {isEditMode ? "Update User" : "Enter Your Details"}
         </h1>
-
-        <label>
-          Name:
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Name:
+          </label>
           <input
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             {...register("name", {
               required: "Name is required",
               minLength: { value: 3, message: "Min 3 characters" },
@@ -144,84 +147,108 @@ const UserForm = () => {
             placeholder="e.g., Naman Katiyar"
           />
           {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
-        </label>
+        </div>
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Email:
+            <input
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              type="email"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Enter a valid email",
+                },
+              })}
+              placeholder="e.g., email@mail.com"
+            />
+            {errors.email && (
+              <p style={{ color: "red" }}>{errors.email.message}</p>
+            )}
+          </label>
+        </div>
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Phone:
+            <input
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              type="tel"
+              {...register("phone", {
+                required: "Phone is required",
+                pattern: {
+                  value: /^([0-9])(?!\1{9})([0-9]{9})$/,
+                  message: "Enter a valid 10-digit number",
+                },
+              })}
+              placeholder="e.g., 9876543210"
+            />
+            {errors.phone && (
+              <p style={{ color: "red" }}>{errors.phone.message}</p>
+            )}
+          </label>
+        </div>
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Location:
+            <input
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              type="text"
+              {...register("location", { required: "Location is required" })}
+              placeholder="e.g., Delhi"
+            />
+            {errors.location && (
+              <p style={{ color: "red" }}>{errors.location.message}</p>
+            )}
+          </label>
+        </div>
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            About:
+            <textarea
+            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              {...register("about", {
+                maxLength: { value: 200, message: "Max 200 characters" },
+              })}
+              placeholder="Tell us something about yourself"
+            />
+            {errors.about && (
+              <p style={{ color: "red" }}>{errors.about.message}</p>
+            )}
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            
+              type="checkbox"
+              checked={status}
+              onChange={(e) => setStatus(e.target.checked)}
+            />
+            Active Status
+          </label>
+        </div>
 
-        <label>
-          Email:
-          <input
-            type="email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Enter a valid email",
-              },
-            })}
-            placeholder="e.g., email@mail.com"
-          />
-          {errors.email && <p style={{ color: "red" }}>{errors.email.message}</p>}
-        </label>
-
-        <label>
-          Phone:
-          <input
-            type="tel"
-            {...register("phone", {
-              required: "Phone is required",
-              pattern: {
-                value: /^([0-9])(?!\1{9})([0-9]{9})$/,
-                message: "Enter a valid 10-digit number",
-              },
-            })}
-            placeholder="e.g., 9876543210"
-          />
-          {errors.phone && <p style={{ color: "red" }}>{errors.phone.message}</p>}
-        </label>
-
-        <label>
-          Location:
-          <input
-            type="text"
-            {...register("location", { required: "Location is required" })}
-            placeholder="e.g., Delhi"
-          />
-          {errors.location && <p style={{ color: "red" }}>{errors.location.message}</p>}
-        </label>
-
-        <label>
-          About:
-          <textarea
-            {...register("about", {
-              maxLength: { value: 200, message: "Max 200 characters" },
-            })}
-            placeholder="Tell us something about yourself"
-          />
-          {errors.about && <p style={{ color: "red" }}>{errors.about.message}</p>}
-        </label>
-
-        <label>
-          <input
-            type="checkbox"
-            checked={status}
-            onChange={(e) => setStatus(e.target.checked)}
-          />
-          Active Status
-        </label>
-
-        <label>
+        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
           Upload Image:
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files[0])}
-          />
         </label>
+        <input
+          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
 
         {file && (
           <img
             src={URL.createObjectURL(file)}
             alt="Preview"
-            style={{ maxWidth: "150px", borderRadius: "8px", objectFit: "cover" }}
+            style={{
+              maxWidth: "150px",
+              borderRadius: "8px",
+              objectFit: "cover",
+            }}
           />
         )}
 

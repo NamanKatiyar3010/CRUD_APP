@@ -9,11 +9,10 @@ const Navbar = () => {
 
   const hideSearch =
     pathname === "/addData" || /^\/users\/[^/]+$/.test(pathname);
-  // console.log(location);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const currentSearch = params.get("search") || "";
-
     if (location.pathname === "/users") {
       setSearch(currentSearch);
     } else {
@@ -28,44 +27,30 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      style={{
-        padding: "10px 20px",
-        background: "#282c34",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
+    <nav className="w-full px-4 py-2 bg-gray-600 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6">
         <Link
           to="/"
-          style={{
-            marginRight: "15px",
-            color: "white",
-            textDecoration: "none",
-          }}
+          className="text-white hover:text-gray-300 transition duration-200"
         >
           Home
         </Link>
-        <Link to="/addData" style={{ color: "white", textDecoration: "none" }}>
+        <Link
+          to="/addData"
+          className="text-white hover:text-gray-300 transition duration-200"
+        >
           Add Data
         </Link>
       </div>
       {!hideSearch && (
-        <div>
+        <div className="w-full sm:w-auto">
           <input
             type="search"
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}
-            style={{
-              padding: "6px 10px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              outline: "none",
-            }}
+            className="w-full sm:w-[250px] px-3 bg-gray-400 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           />
         </div>
       )}

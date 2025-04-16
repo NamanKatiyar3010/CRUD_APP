@@ -162,15 +162,17 @@ const Home = () => {
         </div>
       ) : (
         <>
-          <Table
-            headers={headers}
-            loading={loading}
-            data={updatedData}
-            onUserClick={handleChange}
-            onStatusToggle={handleStatusToggle}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
-          />
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <Table
+              headers={headers}
+              loading={loading}
+              data={updatedData}
+              onUserClick={handleChange}
+              onStatusToggle={handleStatusToggle}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
+          </div>
           <Pagination
             num={totalPages}
             setSearchParams={setSearchParams}
