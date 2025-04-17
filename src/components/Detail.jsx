@@ -18,87 +18,84 @@ const Detail = () => {
     };
   }, [id, dispatch]);
 
-  if (loading) return <p>Loading user data...</p>;
+  if (loading) return <p className="text-center text-lg mt-8">Loading user data...</p>;
 
   if (error)
     return (
-      <div style={{ color: "red" }}>
-        <h3>⚠️ Error loading user</h3>
-        <p>{error}</p>
-        <button onClick={() => navigate("/")}>Back</button>
+      <div className="text-red-600 text-center p-6">
+        <h3 className="text-2xl font-semibold">⚠️ Error loading user</h3>
+        <p className="mb-4">{error}</p>
+        <button
+          onClick={() => navigate("/")}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          ⬅ Back
+        </button>
       </div>
     );
 
   if (!singleUser)
     return (
-      <div>
-        <p>No user data found.</p>
-        <button onClick={() => navigate("/")}>Back</button>
+      <div className="text-center p-6">
+        <p className="text-lg mb-4">No user data found.</p>
+        <button
+          onClick={() => navigate("/")}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          ⬅ Back
+        </button>
       </div>
     );
 
   const user = singleUser;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "20px",
-        padding: "20px",
-        maxWidth: "900px",
-        margin: "auto",
-        alignItems: "flex-start",
-      }}
-    >
-      <div style={{ flex: "1 1 250px", textAlign: "center" }}>
+    <div className="max-w-5xl mx-auto p-6 flex flex-wrap gap-6 items-start">
+      {/* Image Section */}
+      <div className="flex-1 min-w-[250px] text-center">
         {user.image ? (
           <img
             src={user.image}
             alt="User"
-            style={{
-              width: "100%",
-              maxWidth: "250px",
-              height: "auto",
-              borderRadius: "10px",
-              objectFit: "cover",
-            }}
+            className="w-full max-w-xs h-auto rounded-lg object-cover mx-auto"
           />
         ) : (
-          <p>No profile image available.</p>
+          <p className="text-gray-500">No profile image available.</p>
         )}
       </div>
 
-      <div style={{ flex: "2 1 400px" }}>
-        <h2>User Details</h2>
-        <hr />
-        <p><strong>Name:</strong> {user.name}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Phone:</strong> {user.phone}</p>
-        <p><strong>Location:</strong> {user.location}</p>
-        <p><strong>About:</strong> {user.about}</p>
-        <p>
-          <strong>Status:</strong>{" "}
-          <span style={{ color: user.status ? "green" : "red" }}>
-            {user.status ? " Active" : " Inactive"}
+      {/* Details Section */}
+      <div className="flex-1 min-w-[300px]">
+        <h2 className="text-2xl font-bold mb-2">User Details</h2>
+        <hr className="mb-4" />
+        <p className="mb-2">
+          <span className="font-semibold">Name:</span> {user.name}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Email:</span> {user.email}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Phone:</span> {user.phone}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Location:</span> {user.location}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">About:</span> {user.about}
+        </p>
+        <p className="mb-4">
+          <span className="font-semibold">Status:</span>{" "}
+          <span className={user.status ? "text-green-600" : "text-red-600"}>
+            {user.status ? "Active" : "Inactive"}
           </span>
         </p>
 
-        <div style={{ marginTop: "20px" }}>
-          <button
-            onClick={() => navigate("/")}
-            style={{
-              padding: "10px 20px",
-              background: "#007bff",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            ⬅ Back
-          </button>
-        </div>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+        >
+          ⬅ Back
+        </button>
       </div>
     </div>
   );

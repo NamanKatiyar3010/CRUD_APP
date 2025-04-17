@@ -152,7 +152,7 @@ const UserForm = () => {
               placeholder="e.g., email@mail.com"
             />
             {errors.email && (
-              <p style={{ color: "red" }}>{errors.email.message}</p>
+              <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
             )}
           </label>
         </div>
@@ -172,7 +172,7 @@ const UserForm = () => {
               placeholder="e.g., 9876543210"
             />
             {errors.phone && (
-              <p style={{ color: "red" }}>{errors.phone.message}</p>
+              <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>
             )}
           </label>
         </div>
@@ -186,7 +186,7 @@ const UserForm = () => {
               placeholder="e.g., Delhi"
             />
             {errors.location && (
-              <p style={{ color: "red" }}>{errors.location.message}</p>
+              <p className="text-sm text-red-600 mt-1">{errors.location.message}</p>
             )}
           </label>
         </div>
@@ -201,7 +201,7 @@ const UserForm = () => {
               placeholder="Tell us something about yourself"
             />
             {errors.about && (
-              <p style={{ color: "red" }}>{errors.about.message}</p>
+              <p className="text-sm text-red-600 mt-1">{errors.about.message}</p>
             )}
           </label>
         </div>
@@ -212,6 +212,7 @@ const UserForm = () => {
               type="checkbox"
               checked={status}
               onChange={(e) => setStatus(e.target.checked)}
+              
             />
             Active Status
           </label>
@@ -224,9 +225,10 @@ const UserForm = () => {
           className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
           type="file"
           accept="image/*"
+          
           onChange={(e) => setFile(e.target.files[0])}
         />
-
+          
           {singleUser &&   <img
           src={singleUser?.image}
           alt="Preview"

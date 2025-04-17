@@ -12,8 +12,7 @@ const Table = ({
   onUpdate,
 }) => {
   const statusId = useSelector((state) => state.users.updatingUserId);
-  console.log(statusId);
-  
+
   return (
     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead className="text-xs text-gray-700 uppercase justify-center bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -35,9 +34,7 @@ const Table = ({
             return (
               <tr
                 key={index}
-                className={`bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 
-                  
-                `}
+                className={`bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600`}
               >
                 {Object.entries(item).map(([key, value], idx) => {
                   const isClickableObj =
@@ -62,23 +59,33 @@ const Table = ({
                       }
                     >
                       {isStatusButton ? (
-                        <>
-                          {statusId == value.id ? (
-                            "loading.."
-                          ) : (
-                            <button
-                            disabled={statusId == value.id}
-                              className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
-                              onClick={() =>
-                                onStatusToggle(value.id, !value.checked)
-                              }
-                            >
-                              <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                                {value.checked ? "active" : "inactive"}
-                              </span>
-                            </button>
-                          )}
-                        </>
+                        <label className="relative inline-block w-12 h-6">
+                          <input
+                            type="checkbox"
+                            checked={value.checked}
+                            disabled={statusId === value.id}
+                            onChange={() => onStatusToggle(value.id, !value.checked)}
+                            className="sr-only peer"
+                          />
+                          <div
+                            className={`absolute top-0 left-0 w-full h-full rounded-full transition-colors duration-300 ${
+                              value.checked
+                                ? "bg-green-500 peer-checked:bg-green-500"
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                          />
+                          <div
+                            className={`absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
+                              value.checked ? "translate-x-6" : "translate-x-0"
+                            }`}
+                          >
+                            {statusId === value.id && (
+                              <div className="flex items-center justify-center w-full h-full">
+                                <div className="animate-spin border-4 border-t-4 border-gray-500 border-solid rounded-full w-3 h-3"></div>
+                              </div>
+                            )}
+                          </div>
+                        </label>
                       ) : isActions ? (
                         <>
                           <button
