@@ -3,7 +3,6 @@ import { apiThunkWrapper } from "./apiThunkWrapper";
 import axios from "axios";
 
 const url = import.meta.env.VITE_API_APP_URL;
-
 //-------------------Signup-------------------
 export const userSignUp = createAsyncThunk(
   "user/signUp",
