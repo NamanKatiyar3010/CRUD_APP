@@ -53,7 +53,8 @@ const UserForm = () => {
         about: singleUser.about,
         image: singleUser.image,
       });
-
+      console.log(singleUser);
+      
       setStatus(singleUser.status);
     }
   }, [singleUser, reset, isEditMode]);
@@ -226,8 +227,18 @@ const UserForm = () => {
           onChange={(e) => setFile(e.target.files[0])}
         />
 
+          {singleUser &&   <img
+          src={singleUser?.image}
+          alt="Preview"
+          style={{
+            maxWidth: "150px",
+            borderRadius: "8px",
+            objectFit: "cover",
+          }}
+        />}
         {file && (
           <img
+          
             src={URL.createObjectURL(file)}
             alt="Preview"
             style={{

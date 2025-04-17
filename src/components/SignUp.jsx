@@ -100,6 +100,7 @@ const SignUp = () => {
           <label className="text-sm font-medium text-gray-700">Email</label>
           <input
             type="email"
+            // maxLength=
             {...register("email")}
             className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-400"
             placeholder="e.g., email@mail.com"
