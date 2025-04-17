@@ -15,6 +15,7 @@ const Home = () => {
   const [isPopUpOpen, setPopUpOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [statusRetryData, setStatusRetryData] = useState(null); // { id, status, attempts }
+  // const [statusUpdateId, setStatusUpdateId] = useState(null);
 
   const {
     users: data,
@@ -66,12 +67,20 @@ const Home = () => {
   };
 
   const handleStatusToggle = async (id, status) => {
-    const actionResult = await dispatch(upDateUserStatus({ id, status }));
-
+    // const actionResult = await dispatch(upDateUserStatus({ id, status }));
+    // setStatusUpdateId(id);
+  try {
+    const actionResult =  await dispatch(upDateUserStatus({ id, status })).unwrap();
     if (upDateUserStatus.rejected.match(actionResult)) {
       // First failure, show retry popup
       setStatusRetryData({ id, status, attempts: 1 });
     }
+  } catch (err) {
+    // setStatusUpdateId(null);
+    console.error(err);
+  }
+
+    
   };
 
   // const confirmStatusRetry = async () => {
@@ -171,6 +180,7 @@ const Home = () => {
               onStatusToggle={handleStatusToggle}
               onUpdate={handleUpdate}
               onDelete={handleDelete}
+              // statusUpdateId={statusUpdateId}
             />
           </div>
           <Pagination

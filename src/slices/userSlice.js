@@ -101,6 +101,7 @@ const initialState = {
   singleUser: null,
   loading: false,
   error: null,
+  updatingUserId: null,
 };
 
 const userSlice = createSlice({
@@ -172,26 +173,24 @@ const userSlice = createSlice({
         state.error = action.error.message;
       })
       //----------update user------------------
-      .addCase(upDateUserStatus.pending, (state) => {
-        state.loading = true;
+      .addCase(upDateUserStatus.pending, (state, action) => {
+        state.updatingUserId = action.meta.arg.id; // ✅ Move this here
         state.error = null;
       })
       .addCase(upDateUserStatus.fulfilled, (state, action) => {
-        state.loading = false;
-        let statId = action.meta.arg.id;
+        state.updatingUserId = null; // ✅ Reset after success
         state.users = state.users.map((user) => {
-          if (user._id == statId) {
-            let { status, ...rest } = user;
-            return { ...rest, status: !status };
-          } else {
-            return user;
+          if (user._id === action.meta.arg.id) {
+            return { ...user, status: !user.status };
           }
+          return user;
         });
       })
       .addCase(upDateUserStatus.rejected, (state, action) => {
-        state.loading = false;
+        state.updatingUserId = null; // ✅ Reset on error too
         state.error = action.error.message;
       })
+
       //----------delete user------------------
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
