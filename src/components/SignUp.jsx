@@ -25,8 +25,12 @@ const signUpSchema = yup.object().shape({
     .matches(/^([0-9])(?!\1{9})([0-9]{9})$/, "Enter a valid 10-digit number"),
   password: yup
     .string()
-    .required("Password is required")
-    .min(6, "Minimum 6 characters"),
+    .required('Password is required')
+  .min(8, 'Password must be at least 8 characters')
+  .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .matches(/\d/, 'Password must contain at least one number')
+  .matches(/[@$!%*?&#]/, 'Password must contain at least one special character'),
   confirmPassword: yup
     .string()
     .required("Confirm password is required")
