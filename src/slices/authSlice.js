@@ -19,7 +19,7 @@ export const userLogin = createAsyncThunk(
   async ({formvalue}, thunkApi) =>   
     apiThunkWrapper(async () => {
       const res = await axios.post(`${url}/auth/login`, formvalue);
-      
+      console.log(res,"login........")
       return res.data.data; 
     }, thunkApi)
   
