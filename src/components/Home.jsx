@@ -74,27 +74,27 @@ const Home = () => {
     }
   };
 
-  const confirmStatusRetry = async () => {
-    if (!statusRetryData) return;
+  // const confirmStatusRetry = async () => {
+  //   if (!statusRetryData) return;
 
-    const { id, status, attempts } = statusRetryData;
-    const actionResult = await dispatch(upDateUserStatus({ id, status }));
+  //   const { id, status, attempts } = statusRetryData;
+  //   const actionResult = await dispatch(upDateUserStatus({ id, status }));
 
-    if (upDateUserStatus.rejected.match(actionResult)) {
-      if (attempts + 1 < 3) {
-        setStatusRetryData({ id, status, attempts: attempts + 1 });
-      } else {
-        alert("Max retry attempts reached.");
-        setStatusRetryData(null);
-      }
-    } else {
-      setStatusRetryData(null); // success
-    }
-  };
+  //   if (upDateUserStatus.rejected.match(actionResult)) {
+  //     if (attempts + 1 < 3) {
+  //       setStatusRetryData({ id, status, attempts: attempts + 1 });
+  //     } else {
+  //       alert("Max retry attempts reached.");
+  //       setStatusRetryData(null);
+  //     }
+  //   } else {
+  //     setStatusRetryData(null); 
+  //   }
+  // };
 
-  const cancelStatusRetry = () => {
-    setStatusRetryData(null);
-  };
+  // const cancelStatusRetry = () => {
+  //   setStatusRetryData(null);
+  // };
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -197,7 +197,7 @@ const Home = () => {
       >
         <p>Are you sure you want to delete this user?</p>
       </PopupBox>
-      <PopupBox
+      {/* <PopupBox
         isOpen={!!statusRetryData}
         onClose={cancelStatusRetry}
         title="Status Update Failed"
@@ -210,7 +210,7 @@ const Home = () => {
       >
         <p>Failed to update status. Do you want to retry?</p>
         <p>Attempt {statusRetryData?.attempts} of 3</p>
-      </PopupBox>
+      </PopupBox> */}
     </div>
   );
 };

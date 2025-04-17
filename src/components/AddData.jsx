@@ -100,7 +100,7 @@ const UserForm = () => {
       toast.error(err.message || "Operation failed");
     }
   };
-  console.log(singleUser, "cvncvn");
+  // console.log(singleUser, "cvncvn");
   if (isEditMode && loading) {
     return (
       <div style={{ textAlign: "center", marginTop: "4rem" }}>
@@ -112,20 +112,7 @@ const UserForm = () => {
   return (
     <div className="grid gap-6 mb-6 md:grid-cols-2 justify-center items-center">
       <Toaster position="top-right" />
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        style={{
-          maxWidth: "600px",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          background: "#f9f9f9",
-          padding: "2rem",
-          borderRadius: "12px",
-          boxShadow: "0 0 10px #ddd",
-        }}
-      >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <h1 style={{ textAlign: "center" }}>
           {isEditMode ? "Update User" : "Enter Your Details"}
         </h1>
@@ -206,7 +193,7 @@ const UserForm = () => {
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             About:
             <textarea
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               {...register("about", {
                 maxLength: { value: 200, message: "Max 200 characters" },
               })}
@@ -220,8 +207,7 @@ const UserForm = () => {
         <div>
           <label>
             <input
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               type="checkbox"
               checked={status}
               onChange={(e) => setStatus(e.target.checked)}

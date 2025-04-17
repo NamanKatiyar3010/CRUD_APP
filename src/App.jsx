@@ -4,18 +4,35 @@ import Home from "./components/Home";
 import AddData from "./components/AddData";
 import Detail from "./components/Detail";
 import Layout from "./components/Layout";
-// import { AppProvider } from "./GlobalContext/AppContent";
 import { Provider } from "react-redux";
 import store from "../store";
 import WrongPage from "./components/WrongPage";
+import AuthLayout from "./components/AuthLayout";
+import SignUp from "./components/SignUp";
+import Login from "./components/Login";
 
 const router = createBrowserRouter([
+  {
+    path: "/auth",
+    element: <AuthLayout />,
+    children: [
+      {
+        index: true,
+        element: <SignUp />,
+      },
+      {
+        path: "/auth/login",
+        element: <Login />,
+      },
+    ],
+  },
   {
     path: "/",
     element: <Layout />,
     children: [
       {
-        index: true,
+        // index: true,
+        path: "/",
         element: <Home />,
       },
       {
@@ -52,4 +69,4 @@ function App() {
 }
 
 export default App;
-MimeType;
+

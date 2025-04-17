@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiThunkWrapper } from "./apiThunkWrapper";
+import axios from "axios";
 
 const url = import.meta.env.VITE_API_APP_URL;
 
@@ -12,7 +13,7 @@ export const fetchUsers = createAsyncThunk(
         page: page || 1,
         search: search || "",
       }).toString();
-      const res = await fetch(`${url}?${query}`);
+      const res = await fetch(`${url}/users?${query}`);
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message || "Failed to fetch users");
@@ -24,7 +25,7 @@ export const fetchSingleUser = createAsyncThunk(
   "users/fetchSingleUser",
   async (id, thunkAPI) =>
     apiThunkWrapper(async () => {
-      const res = await fetch(`${url}/${id}`);
+      const res = await fetch(`${url}/users/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch user");
       return data;
@@ -35,7 +36,9 @@ export const addUser = createAsyncThunk(
   "users/addUser",
   async (formData, thunkAPI) =>
     apiThunkWrapper(async () => {
-      const res = await fetch(url, {
+      // console.log("running add");
+
+      const res = await fetch(`${url}/users`, {
         method: "POST",
         body: formData,
       });
@@ -49,7 +52,9 @@ export const upDateUserStatus = createAsyncThunk(
   "users/updateStatus",
   async ({ id, status }, thunkAPI) =>
     apiThunkWrapper(async () => {
-      const res = await fetch(`${url}/${id}/status`, {
+      // console.log("runnig update");
+
+      const res = await fetch(`${url}/users/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -64,7 +69,9 @@ export const deleteUser = createAsyncThunk(
   "users/deleteUser",
   async (id, thunkAPI) =>
     apiThunkWrapper(async () => {
-      const res = await fetch(`${url}/${id}`, {
+      // console.log("running delete");
+
+      const res = await fetch(`${url}/users/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -77,7 +84,7 @@ export const updateUser = createAsyncThunk(
   "user/updateUser",
   async ({ id, formData }, thunkApi) =>
     apiThunkWrapper(async () => {
-      const res = await fetch(`${url}/${id}`, {
+      const res = await fetch(`${url}/users/${id}`, {
         method: "PUT",
         body: formData,
       });
