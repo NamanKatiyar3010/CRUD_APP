@@ -27,7 +27,9 @@ const Table = ({
               <th
                 key={index}
                 className={`px-6 py-4 text-sm font-semibold uppercase tracking-wider text-left cursor-pointer hover:bg-gray-700 transition-colors duration-200 ${
-                  header.name.toLowerCase() === "email" ? "hidden md:table-cell" : ""
+                  header.name.toLowerCase() === "email"
+                    ? "hidden md:table-cell"
+                    : ""
                 }`}
               >
                 {header.name}
@@ -50,7 +52,8 @@ const Table = ({
               >
                 {Object.entries(item).map(([key, value], idx) => {
                   const isEmail = key.toLowerCase() === "email";
-                  const isClickableObj = typeof value === "object" && value?.onclick;
+                  const isClickableObj =
+                    typeof value === "object" && value?.onclick;
                   const isStatusButton = value?.isStatusButton;
                   const isActions = value?.isActions;
 
@@ -59,46 +62,52 @@ const Table = ({
                       key={idx}
                       className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white ${
                         isEmail ? "hidden md:table-cell" : ""
+                      } ${
+                        isClickableObj && !isStatusButton && !isActions
+                          ? "cursor-pointer"
+                          : ""
                       }`}
                       onClick={
                         isClickableObj && !isStatusButton && !isActions
                           ? () => onUserClick?.(value.id)
                           : undefined
                       }
-                      style={
-                        isClickableObj && !isStatusButton && !isActions
-                          ? { cursor: "pointer" }
-                          : {}
-                      }
                     >
                       {isStatusButton ? (
-                        <label className="relative inline-block w-12 h-6">
-                          <input
-                            type="checkbox"
-                            checked={value.checked}
-                            disabled={statusId === value.id}
-                            onChange={() => onStatusToggle(value.id, !value.checked)}
-                            className="sr-only peer"
-                          />
-                          <div
-                            className={`absolute top-0 left-0 w-full h-full rounded-full transition-colors duration-300 ${
-                              value.checked
-                                ? "bg-green-500 peer-checked:bg-green-500"
-                                : "bg-gray-300 dark:bg-gray-600"
-                            }`}
-                          />
-                          <div
-                            className={`absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
-                              value.checked ? "translate-x-6" : "translate-x-0"
-                            }`}
-                          >
-                            {statusId === value.id && (
-                              <div className="flex items-center justify-center w-full h-full">
-                                <div className="animate-spin border-4 border-t-4 border-gray-500 border-solid rounded-full w-3 h-3"></div>
-                              </div>
-                            )}
-                          </div>
-                        </label>
+                        <div className="relative w-12 h-6 flex items-center justify-center">
+                          {statusId === value.id ? (
+                            <div className="flex items-center justify-center w-6 h-6">
+                              <div className="animate-spin border-2 border-t-transparent border-gray-500 rounded-full w-4 h-4" />
+                            </div>
+                          ) : (
+                            <label className="relative inline-block w-12 h-6">
+                              <input
+                                type="checkbox"
+                                checked={value.checked}
+                                onChange={() =>
+                                  onStatusToggle(value.id, !value.checked)
+                                }
+                                className="sr-only peer"
+                              />
+                              {/* Track */}
+                              <div
+                                className={`absolute top-0 left-0 w-full h-full rounded-full transition-colors duration-300 ${
+                                  value.checked
+                                    ? "bg-green-500 peer-checked:bg-green-500"
+                                    : "bg-gray-300 dark:bg-gray-600"
+                                }`}
+                              />
+                              {/* Knob */}
+                              <div
+                                className={`absolute top-[2px] left-[2px] h-5 w-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
+                                  value.checked
+                                    ? "translate-x-6"
+                                    : "translate-x-0"
+                                }`}
+                              />
+                            </label>
+                          )}
+                        </div>
                       ) : isActions ? (
                         <>
                           {/* Inline buttons for medium and larger screens */}

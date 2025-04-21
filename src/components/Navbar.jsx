@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react"; // Optional: For modern icons
+import { BsSearch } from "react-icons/bs";
 
 const Navbar = () => {
   const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
   const menuRef = useRef(null);
+  const inputRef = useRef(null);
 
   const hideSearch =
     pathname === "/addData" || /^\/users\/[^/]+$/.test(pathname);
@@ -24,10 +28,33 @@ const Navbar = () => {
     }
   }, [location]);
 
+  // listen for "X" clear event on input
+  useEffect(() => {
+    const input = inputRef.current;
+    const handleSearchClear = (e) => {
+      if (!e.target.value && searchParams.has("search")) {
+        const updatedParams = new URLSearchParams(searchParams);
+        updatedParams.delete("search");
+        updatedParams.set("page", "1");
+        setSearchParams(updatedParams);
+      }
+    };
+
+    input?.addEventListener("search", handleSearchClear);
+    return () => input?.removeEventListener("search", handleSearchClear);
+  }, [searchParams, setSearchParams]);
+
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      navigate(`/users?search=${search}&page=1&limit=10`);
-    }
+    console.log(e);
+    
+    // if (e.key === "Enter") {
+      const updatedParams = new URLSearchParams(searchParams);
+      updatedParams.set("search", search);
+      updatedParams.set("page", "1");
+      updatedParams.set("limit", "10");
+      setSearchParams(updatedParams);
+      navigate(`/users?${updatedParams}`);
+    // }
   };
 
   const handleLogout = () => {
@@ -78,14 +105,19 @@ const Navbar = () => {
         {/* Right - Search & Menu */}
         <div className="hidden sm:flex items-center gap-4">
           {!hideSearch && (
+            <>
+            
             <input
+              ref={inputRef}
               type="search"
               placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleKeyDown}
+              // onKeyDown={handleKeyDown}
               className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
+            <BsSearch onClick={handleKeyDown}/>
+            </>
           )}
           {/* 3-dot dropdown */}
           <div className="relative" ref={menuRef}>

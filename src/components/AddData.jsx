@@ -141,7 +141,7 @@ const UserForm = () => {
 
   if (isEditMode && loading) {
     return (
-      <div style={{ textAlign: "center", marginTop: "4rem" }}>
+      <div className="text-center mt-16">
         <h2>Loading user data...</h2>
       </div>
     );

@@ -10,7 +10,7 @@ import WrongPage from "./components/WrongPage";
 import AuthLayout from "./components/AuthLayout";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import PublicRoute from "./components/PublicRoute"
+import PrivateRoute from "./components/PublicRoute"
 
 const router = createBrowserRouter([
   {

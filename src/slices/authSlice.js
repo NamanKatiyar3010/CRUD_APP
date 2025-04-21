@@ -29,6 +29,7 @@ const initialState = {
   token: sessionStorage.getItem("token") || "",
   loading: false,
   error: null,
+  userEmail: "",
 };
 
 const authSlice = createSlice({
@@ -40,6 +41,12 @@ const authSlice = createSlice({
       sessionStorage.clear();
       sessionStorage.removeItem("token");
     },
+    setUserEmail : (state,action) => {
+      state.userEmail = action.payload;
+    },
+    clearUserEmail: (state) => {
+      state.userEmail="";
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -47,9 +54,11 @@ const authSlice = createSlice({
       .addCase(userSignUp.pending, (state) => {
         state.loading = true;
         state.error = null;
+        
       })
       .addCase(userSignUp.fulfilled, (state) => {
         state.loading = false;
+
       })
       .addCase(userSignUp.rejected, (state, action) => {
         state.loading = false;
@@ -73,5 +82,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { userLogout } = authSlice.actions;
+export const { userLogout,setUserEmail,clearUserEmail } = authSlice.actions;
 export default authSlice.reducer;

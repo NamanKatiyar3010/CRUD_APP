@@ -1,29 +1,44 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { userLogin } from "../slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { userLogin, clearUserEmail } from "../slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import FloatingInput from "./FloatingInput";
 import { Toaster, toast } from "react-hot-toast";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 // import { GoogleReCaptchaProvider, GoogleReCaptcha } from "react-google-recaptcha-v3";
+// Yup validation schema
+const loginSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
 
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(8, "Minimum 8 characters"),
+});
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const [token, setToken] = useState("");
+  const userEmail = useSelector((state) => state.auth.userEmail);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     mode: "onChange",
+    resolver: yupResolver(loginSchema),
     defaultValues: {
-      email: "",
+      email: userEmail || "",
       password: "",
     },
   });
@@ -31,28 +46,28 @@ const Login = () => {
   const onSubmit = async (formvalue) => {
     try {
       const res = await dispatch(userLogin({ formvalue })).unwrap();
+      dispatch(clearUserEmail);
       navigate("/");
       reset();
     } catch (error) {
       setRefreshReCaptcha(!refreshReCaptcha);
-      console.error("Login failed:", error);
-      // alert("Login failed. Please check your credentials.");
+      // console.error("Login failed:", error);
       toast.error("Login failed. Please check your credentials.");
     }
   };
 
-  const setTokenFunc = (getToken) => {
-    setToken(getToken);
-  };
+  // const setTokenFunc = (getToken) => {
+  //   setToken(getToken);
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
-       <Toaster position="top-right" />
+      <Toaster position="top-right" />
       <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
         <h2 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-6">
           Login to your account
         </h2>
-
+        {/* {console.log(!isValid)} */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email */}
 
@@ -75,8 +90,8 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting}
-            className={`w-full py-2 px-4 text-sm font-medium text-white rounded-md transition ${
+            disabled={isSubmitting || !isValid}
+            className={`w-full py-2 px-4 text-sm font-medium text-white rounded-md disabled:opacity-50 transition ${
               isSubmitting
                 ? "bg-blue-300 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"

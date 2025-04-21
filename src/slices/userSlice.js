@@ -101,7 +101,7 @@ const initialState = {
   singleUser: null,
   loading: false,
   error: null,
-  updatingUserId: null,
+  updatingUserId: [],
 };
 
 const userSlice = createSlice({
@@ -172,13 +172,13 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      //----------update user------------------
+      //----------update user Status------------------
       .addCase(upDateUserStatus.pending, (state, action) => {
-        state.updatingUserId = action.meta.arg.id; // ✅ Move this here
+        state.updatingUserId = action.meta.arg.id; 
         state.error = null;
       })
       .addCase(upDateUserStatus.fulfilled, (state, action) => {
-        state.updatingUserId = null; // ✅ Reset after success
+        state.updatingUserId = null;
         state.users = state.users.map((user) => {
           if (user._id === action.meta.arg.id) {
             return { ...user, status: !user.status };

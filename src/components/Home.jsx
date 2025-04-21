@@ -10,6 +10,7 @@ import {
   deleteUser,
 } from "../slices/userSlice";
 import PopupBox from "../PopupBox";
+import { Toaster, toast } from "react-hot-toast";
 
 const Home = () => {
   const [isPopUpOpen, setPopUpOpen] = useState(false);
@@ -33,18 +34,6 @@ const Home = () => {
   const limit = Math.min(Number(searchParams.get("limit")) || 10, 50);
   const page = searchParams.get("page") || 1;
   const searchText = searchParams.get("search") || "";
-
-  useEffect(() => {
-    if (
-      location.pathname === "/" &&
-      !searchText &&
-      searchParams.has("search")
-    ) {
-      const updatedParams = new URLSearchParams(searchParams);
-      updatedParams.delete("search");
-      setSearchParams(updatedParams);
-    }
-  }, [location.pathname, searchText, searchParams, setSearchParams]);
 
   useEffect(() => {
     dispatch(resetUsersLoaded());
@@ -116,7 +105,7 @@ const Home = () => {
         await dispatch(deleteUser(deleteId));
         dispatch(fetchUsers({ page, limit, search: searchText }));
       } catch (error) {
-        alert("Failed to delete user. Please try again.");
+        toast.error("Failed to delete user. Please try again.");
       } finally {
         setDeleteId(null);
         setPopUpOpen(false);
@@ -156,16 +145,17 @@ const Home = () => {
   }));
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <div className="p-4">
+      <Toaster position="top-right" />
       {error ? (
-        <div style={{ color: "red", marginBottom: "1rem" }}>
+        <div className="text-red-500 mb-4">
           <h3>⚠️ Failed to load data</h3>
           <p>{error.message || "An unexpected error occurred."}</p>
         </div>
       ) : loading ? (
         <p>Loading...</p>
       ) : filteredData.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
+        <div className="text-center p-8 text-gray-500">
           <h3>😕 No data found</h3>
           <p>Try adjusting your search or filters.</p>
         </div>

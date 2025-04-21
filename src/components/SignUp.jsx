@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Toaster, toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { userSignUp } from "../slices/authSlice";
+import { userSignUp, setUserEmail } from "../slices/authSlice";
 import { FcGoogle } from "react-icons/fc";
 import FloatingInput from "./FloatingInput";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 // Yup validation schema
 const signUpSchema = yup.object().shape({
@@ -42,12 +45,14 @@ const signUpSchema = yup.object().shape({
 const SignUp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [user, setUser] = useState();
+  const [profile, setProfile] = useState();
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     mode: "onChange",
     resolver: yupResolver(signUpSchema),
@@ -64,6 +69,7 @@ const SignUp = () => {
     try {
       delete formValue.confirmPassword;
       await dispatch(userSignUp(formValue)).unwrap();
+      dispatch(setUserEmail(formValue.email));
       reset();
       navigate("/auth/login");
     } catch (error) {
@@ -80,6 +86,37 @@ const SignUp = () => {
       }
     }
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      console.log("googleSignIn", tokenResponse);
+      setUser(tokenResponse);
+    },
+    onError: () => {
+      console.log("error Something fishy");
+    },
+  });
+  useEffect(() => {
+    if (user) {
+      axios
+        .get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user.access_token}`,
+              Accept: "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          setProfile(res.data);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [user]);
+  {
+    console.log(profile);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
@@ -105,6 +142,7 @@ const SignUp = () => {
           type="email"
           register={register}
           error={errors.email}
+          maxLength={50}
         />
 
         <FloatingInput
@@ -113,6 +151,7 @@ const SignUp = () => {
           type="tel"
           register={register}
           error={errors.phoneNumber}
+          maxLength={10}
         />
 
         <FloatingInput
@@ -121,6 +160,7 @@ const SignUp = () => {
           type="password"
           register={register}
           error={errors.password}
+          maxLength={40}
         />
 
         <FloatingInput
@@ -133,7 +173,7 @@ const SignUp = () => {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isValid}
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50"
         >
           {isSubmitting ? "Creating..." : "Create Account"}
@@ -148,6 +188,11 @@ const SignUp = () => {
         <button
           type="button"
           className="w-full flex items-center justify-center gap-3 border py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          onClick={() => {
+            console.log("Google SignIn");
+
+            handleGoogleLogin();
+          }}
         >
           <FcGoogle size={20} />
           <span className="text-sm font-medium text-gray-700 dark:text-white">
