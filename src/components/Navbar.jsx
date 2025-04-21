@@ -31,7 +31,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     navigate("/auth");
   };
 
@@ -61,7 +61,7 @@ const Navbar = () => {
             to="/addData"
             className="text-lg font-medium hover:text-gray-300 transition hidden sm:inline"
           >
-            Add Data
+            Add User
           </Link>
         </div>
 
@@ -118,7 +118,7 @@ const Navbar = () => {
             className="text-white px-2 py-1 rounded hover:bg-gray-500 transition"
             onClick={() => setMobileMenuOpen(false)}
           >
-            Add Data
+            Add User
           </Link>
 
           {!hideSearch && (

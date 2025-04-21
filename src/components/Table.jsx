@@ -1,6 +1,6 @@
-import React from "react";
-import SkeletonRow from "./SkeletonRow";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { FiMoreVertical } from "react-icons/fi";
 
 const Table = ({
   headers,
@@ -12,41 +12,54 @@ const Table = ({
   onUpdate,
 }) => {
   const statusId = useSelector((state) => state.users.updatingUserId);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(null);
+
+  const toggleDropdown = (index) => {
+    setIsDropdownOpen(isDropdownOpen === index ? null : index);
+  };
 
   return (
-    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-      <thead className="text-xs text-gray-700 uppercase justify-center bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-        <tr scope="col" className="px-6 py-4">
-          {headers?.map((header, index) => (
-            <th key={index}>{header.name}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data?.length === 0 && loading ? (
-          <>
-            <SkeletonRow columns={headers.length} />
-            <SkeletonRow columns={headers.length} />
-            <SkeletonRow columns={headers.length} />
-          </>
-        ) : (
-          data?.map((item, index) => {
-            return (
+    <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+      <table className="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead className="bg-gray-800 text-white">
+          <tr>
+            {headers?.map((header, index) => (
+              <th
+                key={index}
+                className={`px-6 py-4 text-sm font-semibold uppercase tracking-wider text-left cursor-pointer hover:bg-gray-700 transition-colors duration-200 ${
+                  header.name.toLowerCase() === "email" ? "hidden md:table-cell" : ""
+                }`}
+              >
+                {header.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data?.length === 0 && loading ? (
+            <>
+              <SkeletonRow columns={headers.length} />
+              <SkeletonRow columns={headers.length} />
+              <SkeletonRow columns={headers.length} />
+            </>
+          ) : (
+            data?.map((item, index) => (
               <tr
                 key={index}
-                className={`bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600`}
+                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 {Object.entries(item).map(([key, value], idx) => {
-                  const isClickableObj =
-                    typeof value === "object" && value?.onclick;
-
+                  const isEmail = key.toLowerCase() === "email";
+                  const isClickableObj = typeof value === "object" && value?.onclick;
                   const isStatusButton = value?.isStatusButton;
                   const isActions = value?.isActions;
 
                   return (
                     <td
-                      className="px-3 py-2"
                       key={idx}
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white ${
+                        isEmail ? "hidden md:table-cell" : ""
+                      }`}
                       onClick={
                         isClickableObj && !isStatusButton && !isActions
                           ? () => onUserClick?.(value.id)
@@ -88,22 +101,59 @@ const Table = ({
                         </label>
                       ) : isActions ? (
                         <>
-                          <button
-                            className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                            onClick={() => onUpdate?.(value.id)}
-                          >
-                            <span className="relative px-3 py-2 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                              Update
-                            </span>
-                          </button>
-                          <button
-                            className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-200 via-red-300 to-yellow-200 group-hover:from-red-200 group-hover:via-red-300 group-hover:to-yellow-200 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400"
-                            onClick={() => onDelete?.(value.id)}
-                          >
-                            <span className="relative px-3 py-2 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                              Delete
-                            </span>
-                          </button>
+                          {/* Inline buttons for medium and larger screens */}
+                          <div className="hidden md:flex gap-2">
+                            <button
+                              className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
+                              onClick={() => onUpdate?.(value.id)}
+                            >
+                              <span className="relative px-3 py-2 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
+                                Update
+                              </span>
+                            </button>
+                            <button
+                              className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-200 via-red-300 to-yellow-200 group-hover:from-red-200 group-hover:via-red-300 group-hover:to-yellow-200 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400"
+                              onClick={() => onDelete?.(value.id)}
+                            >
+                              <span className="relative px-3 py-2 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
+                                Delete
+                              </span>
+                            </button>
+                          </div>
+
+                          {/* Dropdown menu for small screens */}
+                          <div className="md:hidden relative inline-block">
+                            <button
+                              className="text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200"
+                              onClick={() => toggleDropdown(index)}
+                            >
+                              <FiMoreVertical size={20} />
+                            </button>
+                            {isDropdownOpen === index && (
+                              <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg z-10">
+                                <ul className="py-1 text-sm text-gray-700 dark:text-gray-200">
+                                  <li
+                                    onClick={() => {
+                                      onUpdate?.(value.id);
+                                      setIsDropdownOpen(null);
+                                    }}
+                                    className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                                  >
+                                    Update
+                                  </li>
+                                  <li
+                                    onClick={() => {
+                                      onDelete?.(value.id);
+                                      setIsDropdownOpen(null);
+                                    }}
+                                    className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                                  >
+                                    Delete
+                                  </li>
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </>
                       ) : typeof value === "object" ? (
                         value?.text
@@ -114,11 +164,11 @@ const Table = ({
                   );
                 })}
               </tr>
-            );
-          })
-        )}
-      </tbody>
-    </table>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

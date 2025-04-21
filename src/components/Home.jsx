@@ -69,18 +69,18 @@ const Home = () => {
   const handleStatusToggle = async (id, status) => {
     // const actionResult = await dispatch(upDateUserStatus({ id, status }));
     // setStatusUpdateId(id);
-  try {
-    const actionResult =  await dispatch(upDateUserStatus({ id, status })).unwrap();
-    if (upDateUserStatus.rejected.match(actionResult)) {
-      // First failure, show retry popup
-      setStatusRetryData({ id, status, attempts: 1 });
+    try {
+      const actionResult = await dispatch(
+        upDateUserStatus({ id, status })
+      ).unwrap();
+      if (upDateUserStatus.rejected.match(actionResult)) {
+        // First failure, show retry popup
+        setStatusRetryData({ id, status, attempts: 1 });
+      }
+    } catch (err) {
+      // setStatusUpdateId(null);
+      console.error(err);
     }
-  } catch (err) {
-    // setStatusUpdateId(null);
-    console.error(err);
-  }
-
-    
   };
 
   // const confirmStatusRetry = async () => {
@@ -97,7 +97,7 @@ const Home = () => {
   //       setStatusRetryData(null);
   //     }
   //   } else {
-  //     setStatusRetryData(null); 
+  //     setStatusRetryData(null);
   //   }
   // };
 
@@ -198,15 +198,29 @@ const Home = () => {
         isOpen={isPopUpOpen}
         onClose={() => setPopUpOpen(false)}
         title="Confirm Deletion"
-        footer={
-          <>
-            <button onClick={() => setPopUpOpen(false)}>Cancel</button>
-            <button onClick={confirmDelete}>Delete</button>
-          </>
+        footerLeft={
+          <button
+            onClick={() => setPopUpOpen(false)}
+            className="px-4 py-2 text-sm font-medium rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white"
+          >
+            Cancel
+          </button>
+        }
+        footerRight={
+          <button
+            onClick={confirmDelete}
+            className="px-4 py-2 text-sm font-medium rounded-md bg-red-600 hover:bg-red-700 text-white"
+          >
+            Delete
+          </button>
         }
       >
-        <p>Are you sure you want to delete this user?</p>
+        <p className="text-gray-600 dark:text-gray-300">
+          Are you sure you want to delete this item? This action cannot be
+          undone.
+        </p>
       </PopupBox>
+
       {/* <PopupBox
         isOpen={!!statusRetryData}
         onClose={cancelStatusRetry}

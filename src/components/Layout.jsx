@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import { Navigate, Outlet } from "react-router-dom";
 
 const Layout = () => {
-  if (!localStorage.getItem("token")) {
+  if (!sessionStorage.getItem("token")) {
     return <Navigate to={"/auth"} />;
   }
 

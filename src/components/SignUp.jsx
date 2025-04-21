@@ -1,13 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { userSignUp } from "../slices/authSlice";
+import { FcGoogle } from "react-icons/fc";
+import FloatingInput from "./FloatingInput";
 
-// Yup Schema
+// Yup validation schema
 const signUpSchema = yup.object().shape({
   fullName: yup
     .string()
@@ -25,12 +27,12 @@ const signUpSchema = yup.object().shape({
     .matches(/^([0-9])(?!\1{9})([0-9]{9})$/, "Enter a valid 10-digit number"),
   password: yup
     .string()
-    .required('Password is required')
-  .min(8, 'Password must be at least 8 characters')
-  .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .matches(/\d/, 'Password must contain at least one number')
-  .matches(/[@$!%*?&#]/, 'Password must contain at least one special character'),
+    .required("Password is required")
+    .min(8, "Minimum 8 characters")
+    .matches(/[a-z]/, "Must contain a lowercase letter")
+    .matches(/[A-Z]/, "Must contain an uppercase letter")
+    .matches(/\d/, "Must contain a number")
+    .matches(/[@$!%*?&#]/, "Must contain a special character"),
   confirmPassword: yup
     .string()
     .required("Confirm password is required")
@@ -65,121 +67,104 @@ const SignUp = () => {
       reset();
       navigate("/auth/login");
     } catch (error) {
-      console.log(error, "Signup failed");
+      console.log("Signup failed", error);
+
+      // If error is coming from rejectWithValue, it will be the full object
+      const message = error?.message || "Signup failed";
+      const apiError = error?.error;
+
+      toast.error(message, { id: "api-message" });
+
+      if (apiError) {
+        toast.error(apiError, { id: "api-error" });
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
       <Toaster position="top-right" />
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-md bg-white shadow-lg rounded-xl p-6 space-y-4"
+        className="w-full max-w-md bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 space-y-5"
       >
-        <h2 className="text-2xl font-bold text-center text-gray-800">
-          Sign Up
+        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white">
+          Create an Account
         </h2>
+        <FloatingInput
+          label="Full Name"
+          name="fullName"
+          register={register}
+          maxLength={50}
+          error={errors.fullName}
+        />
 
-        {/* Full Name */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">Full Name</label>
-          <input
-            {...register("fullName")}
-            className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-400"
-            placeholder="e.g., Naman Katiyar"
-          />
-          {errors.fullName && (
-            <p className="text-sm text-red-600 mt-1">
-              {errors.fullName.message}
-            </p>
-          )}
+        <FloatingInput
+          label="Email"
+          name="email"
+          type="email"
+          register={register}
+          error={errors.email}
+        />
+
+        <FloatingInput
+          label="Phone Number"
+          name="phoneNumber"
+          type="tel"
+          register={register}
+          error={errors.phoneNumber}
+        />
+
+        <FloatingInput
+          label="Password"
+          name="password"
+          type="password"
+          register={register}
+          error={errors.password}
+        />
+
+        <FloatingInput
+          label="Confirm Password"
+          name="confirmPassword"
+          type="password"
+          register={register}
+          error={errors.confirmPassword}
+        />
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50"
+        >
+          {isSubmitting ? "Creating..." : "Create Account"}
+        </button>
+
+        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+          <hr className="border w-full" />
+          or
+          <hr className="border w-full" />
         </div>
 
-        {/* Email */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            // maxLength=
-            {...register("email")}
-            className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-400"
-            placeholder="e.g., email@mail.com"
-          />
-          {errors.email && (
-            <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-          )}
-        </div>
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-3 border py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        >
+          <FcGoogle size={20} />
+          <span className="text-sm font-medium text-gray-700 dark:text-white">
+            Sign Up with Google
+          </span>
+        </button>
 
-        {/* Phone Number */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            {...register("phoneNumber")}
-            className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-400"
-            placeholder="e.g., 9876543210"
-          />
-          {errors.phoneNumber && (
-            <p className="text-sm text-red-600 mt-1">
-              {errors.phoneNumber.message}
-            </p>
-          )}
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">Password</label>
-          <input
-            type="password"
-            {...register("password")}
-            className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-400"
-            placeholder="Enter your password"
-          />
-          {errors.password && (
-            <p className="text-sm text-red-600 mt-1">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        {/* Confirm Password */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            {...register("confirmPassword")}
-            className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-400"
-            placeholder="Confirm your password"
-          />
-          {errors.confirmPassword && (
-            <p className="text-sm text-red-600 mt-1">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
-        {/* Buttons */}
-        <div className="flex flex-col gap-2 mt-4">
+        <p className="text-sm text-center text-gray-600 dark:text-gray-300 mt-2">
+          Already have an account?{" "}
           <button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            {isSubmitting ? "Creating..." : "Create Account"}
-          </button>
-
-          <button
-            type="button"
             onClick={() => navigate("/auth/login")}
-            className="text-sm text-blue-600 hover:underline text-center"
+            className="text-blue-600 hover:underline cursor-pointer"
+            type="button"
           >
-            Already have an account? Login
+            Log In
           </button>
-        </div>
+        </p>
       </form>
     </div>
   );

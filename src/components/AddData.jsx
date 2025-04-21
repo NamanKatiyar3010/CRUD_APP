@@ -9,6 +9,10 @@ import {
   clearSingleUser,
 } from "../slices/userSlice";
 import { useNavigate, useParams } from "react-router-dom";
+import FloatingInput from "./FloatingInput.jsx";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
 
 const UserForm = () => {
   const dispatch = useDispatch();
@@ -17,10 +21,44 @@ const UserForm = () => {
   const isEditMode = Boolean(id);
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState(false);
-  console.log(id);
 
   const { singleUser, loading } = useSelector((state) => state.users);
 
+  const addUserSchema = yup.object().shape({
+    name: yup
+      .string()
+      .required("Name is required")
+      .matches(/^[A-Za-z\s]{2,50}$/, "Name must be 2-50 characters and contain only letters and spaces"),
+  
+    email: yup
+      .string()
+      .required("Email is required")
+      .email("Invalid email format")
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Enter a valid email"
+      ),
+  
+    phone: yup
+      .string()
+      .required("Phone number is required")
+      .matches(
+        /^[6-9]\d{9}$/,
+        "Phone number must be exactly 10 digits and start with 6, 7, 8, or 9"
+      ),
+  
+    location: yup
+      .string()
+      .required("Location is required")
+      .matches(
+        /^[A-Za-z\s,]{2,30}$/,
+        "Location must be 2-30 characters long and contain only letters, commas and spaces"
+      ),
+  
+    about: yup
+      .string()
+      .max(400, "About must be at most 400 characters"),
+  });
   const {
     register,
     handleSubmit,
@@ -28,6 +66,8 @@ const UserForm = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     mode: "onChange",
+    resolver: yupResolver(addUserSchema),
+
     defaultValues: {
       name: "",
       email: "",
@@ -53,8 +93,6 @@ const UserForm = () => {
         about: singleUser.about,
         image: singleUser.image,
       });
-      console.log(singleUser);
-      
       setStatus(singleUser.status);
     }
   }, [singleUser, reset, isEditMode]);
@@ -85,7 +123,6 @@ const UserForm = () => {
 
       if (isEditMode) {
         await dispatch(updateUser({ id, formData }));
-
         toast.success("✅ User updated successfully!");
       } else {
         await dispatch(addUser(formData)).unwrap();
@@ -101,7 +138,7 @@ const UserForm = () => {
       toast.error(err.message || "Operation failed");
     }
   };
-  // console.log(singleUser, "cvncvn");
+
   if (isEditMode && loading) {
     return (
       <div style={{ textAlign: "center", marginTop: "4rem" }}>
@@ -111,188 +148,142 @@ const UserForm = () => {
   }
 
   return (
-    <div className="grid gap-6 mb-6 md:grid-cols-2 justify-center items-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
       <Toaster position="top-right" />
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <h1 style={{ textAlign: "center" }}>
+      <div className="w-full max-w-5xl bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-10">
+        <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
           {isEditMode ? "Update User" : "Enter Your Details"}
         </h1>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Name:
-          </label>
-          <input
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            {...register("name", {
-              required: "Name is required",
-              minLength: { value: 3, message: "Min 3 characters" },
-              maxLength: { value: 50, message: "Max 50 characters" },
-              pattern: {
-                value: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
-                message: "Only letters and spaces allowed",
-              },
-            })}
-            placeholder="e.g., Naman Katiyar"
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <FloatingInput
+            label="Name"
+            name="name"
+            type="text"
+            register={register}
+            maxLength={50}
+            error={errors.name}
           />
-          {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Email:
+          <FloatingInput
+            label="Email"
+            name="email"
+            type="text"
+            register={register}
+            maxLength={50}
+            error={errors.email}
+          />
+          <FloatingInput
+            label="Contact Number"
+            name="phone"
+            type="text"
+            register={register}
+            maxLength={10}
+            error={errors.phone}
+          />
+          <FloatingInput
+            label="Location"
+            name="location"
+            type="text"
+            register={register}
+            maxLength={30}
+            error={errors.location}
+          />
+          <FloatingInput
+            label="About"
+            name="about"
+            type="textarea"
+            register={register}
+            maxLength={400}
+            error={errors.about}
+          />
+          <div className="flex items-center gap-2">
             <input
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              type="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Enter a valid email",
-                },
-              })}
-              placeholder="e.g., email@mail.com"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-            )}
-          </label>
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Phone:
-            <input
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              type="tel"
-              {...register("phone", {
-                required: "Phone is required",
-                pattern: {
-                  value: /^([0-9])(?!\1{9})([0-9]{9})$/,
-                  message: "Enter a valid 10-digit number",
-                },
-              })}
-              placeholder="e.g., 9876543210"
-            />
-            {errors.phone && (
-              <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>
-            )}
-          </label>
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Location:
-            <input
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              type="text"
-              {...register("location", { required: "Location is required" })}
-              placeholder="e.g., Delhi"
-            />
-            {errors.location && (
-              <p className="text-sm text-red-600 mt-1">{errors.location.message}</p>
-            )}
-          </label>
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            About:
-            <textarea
-              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              {...register("about", {
-                maxLength: { value: 200, message: "Max 200 characters" },
-              })}
-              placeholder="Tell us something about yourself"
-            />
-            {errors.about && (
-              <p className="text-sm text-red-600 mt-1">{errors.about.message}</p>
-            )}
-          </label>
-        </div>
-        <div>
-          <label>
-            <input
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               type="checkbox"
               checked={status}
               onChange={(e) => setStatus(e.target.checked)}
-              
+              className="w-5 h-5 accent-blue-600 rounded"
             />
-            Active Status
-          </label>
-        </div>
-
-        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          Upload Image:
-        </label>
-        <input
-          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-          type="file"
-          accept="image/*"
-          
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-          
-          {singleUser &&   <img
-          src={singleUser?.image}
-          alt="Preview"
-          style={{
-            maxWidth: "150px",
-            borderRadius: "8px",
-            objectFit: "cover",
-          }}
-        />}
-        {file && (
-          <img
-          
-            src={URL.createObjectURL(file)}
-            alt="Preview"
-            style={{
-              maxWidth: "150px",
-              borderRadius: "8px",
-              objectFit: "cover",
-            }}
-          />
-        )}
-
-        <button
-          type="submit"
-          disabled={loading || isSubmitting}
-          style={{
-            padding: "10px 16px",
-            background: "#007bff",
-            color: "white",
-            fontWeight: "bold",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            opacity: loading || isSubmitting ? 0.6 : 1,
-          }}
-        >
-          {loading || isSubmitting
-            ? isEditMode
-              ? "Updating..."
-              : "Submitting..."
-            : isEditMode
-            ? "Update"
-            : "Submit"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          style={{
-            padding: "10px 16px",
-            background: "#6c757d",
-            color: "white",
-            fontWeight: "bold",
-            borderRadius: "6px",
-            border: "none",
-            marginTop: "10px",
-            cursor: "pointer",
-          }}
-        >
-          ⬅ Back
-        </button>
-      </form>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Active Status
+            </label>
+          </div>
+  
+          {/* File Upload */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Upload Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const selectedFile = e.target.files[0];
+                if (selectedFile && selectedFile.size > 3 * 1024 * 1024) {
+                  toast.error("🚫 File size should be less than 3MB");
+                  e.target.value = "";
+                  setFile(null);
+                  return;
+                }
+                setFile(selectedFile);
+              }}
+              className="block w-full text-sm text-gray-700 dark:text-white 
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-600 file:text-white
+                hover:file:bg-blue-700
+                bg-gray-100 dark:bg-gray-700 rounded-md cursor-pointer"
+            />
+          </div>
+  
+          {(file || singleUser?.image) && (
+            <div className="md:col-span-2 flex gap-4 items-center">
+              {file && (
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Preview"
+                  className="w-24 h-24 object-cover rounded-lg shadow-md"
+                />
+              )}
+              {!file && singleUser?.image && (
+                <img
+                  src={singleUser.image}
+                  alt="Preview"
+                  className="w-24 h-24 object-cover rounded-lg shadow-md"
+                />
+              )}
+            </div>
+          )}
+  
+          <div className="md:col-span-2 flex justify-between mt-4">
+            <button
+              type="submit"
+              disabled={loading || isSubmitting}
+              className="px-6 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {loading || isSubmitting
+                ? isEditMode
+                  ? "Updating..."
+                  : "Submitting..."
+                : isEditMode
+                ? "Update"
+                : "Submit"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              className="px-6 py-2 bg-gray-500 text-white font-semibold rounded hover:bg-gray-600 transition"
+            >
+              ⬅ Back
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
+  
 };
 
 export default UserForm;
