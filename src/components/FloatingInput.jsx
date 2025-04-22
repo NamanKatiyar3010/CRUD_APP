@@ -30,7 +30,7 @@ const FloatingInput = ({
         htmlFor={name}
         className={`absolute left-3 -top-2.5 text-xs px-1 transition-all bg-white dark:bg-gray-800
           peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
-          peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-500
+          peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-500 
           ${error ? "text-rose-500 peer-focus:text-rose-500" : "text-gray-500"}`}
       >
         {label}

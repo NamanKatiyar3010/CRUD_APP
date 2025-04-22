@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
-import { LogOut, Menu, X } from "lucide-react"; // Optional: For modern icons
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { LogOut, Menu, X } from "lucide-react";
 import { BsSearch } from "react-icons/bs";
+import { useSelector } from "react-redux";
+import { Toaster, toast } from "react-hot-toast";
 
 const Navbar = () => {
   const [search, setSearch] = useState("");
@@ -14,6 +15,7 @@ const Navbar = () => {
   const pathname = location.pathname;
   const menuRef = useRef(null);
   const inputRef = useRef(null);
+  const { totalUsers } = useSelector((state) => state.users);
 
   const hideSearch =
     pathname === "/addData" || /^\/users\/[^/]+$/.test(pathname);
@@ -28,7 +30,6 @@ const Navbar = () => {
     }
   }, [location]);
 
-  // listen for "X" clear event on input
   useEffect(() => {
     const input = inputRef.current;
     const handleSearchClear = (e) => {
@@ -39,22 +40,35 @@ const Navbar = () => {
         setSearchParams(updatedParams);
       }
     };
-
     input?.addEventListener("search", handleSearchClear);
     return () => input?.removeEventListener("search", handleSearchClear);
   }, [searchParams, setSearchParams]);
 
+  const handleSearch = () => {
+    const trimmedSearch = search.trim();
+
+    if (!trimmedSearch) {
+      toast.error("Search cannot be empty or just spaces.");
+      return;
+    }
+
+    const isValid = /^[a-zA-Z0-9@._-]+$/.test(trimmedSearch);
+    if (!isValid) {
+      toast.error("Search can only include letters, numbers, @, ., _, and -");
+      return;
+    }
+
+    const updatedParams = new URLSearchParams(searchParams);
+    updatedParams.set("search", trimmedSearch);
+    updatedParams.set("page", "1");
+    updatedParams.set("limit", "10");
+
+    setSearchParams(updatedParams);
+    navigate(`/users?${updatedParams}`);
+  };
+
   const handleKeyDown = (e) => {
-    console.log(e);
-    
-    // if (e.key === "Enter") {
-      const updatedParams = new URLSearchParams(searchParams);
-      updatedParams.set("search", search);
-      updatedParams.set("page", "1");
-      updatedParams.set("limit", "10");
-      setSearchParams(updatedParams);
-      navigate(`/users?${updatedParams}`);
-    // }
+    if (e.key === "Enter") handleSearch();
   };
 
   const handleLogout = () => {
@@ -62,7 +76,6 @@ const Navbar = () => {
     navigate("/auth");
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -76,55 +89,50 @@ const Navbar = () => {
   return (
     <nav className="w-full bg-gray-600 text-white px-4 py-3">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Left - Brand / Nav Links */}
+        {/* Left Links */}
         <div className="flex items-center gap-6">
-          <Link
-            to="/"
-            className="text-lg font-medium hover:text-gray-300 transition"
-          >
+          <Link to="/" className="text-lg font-medium hover:text-gray-300 transition">
             Home
           </Link>
-          <Link
-            to="/addData"
-            className="text-lg font-medium hover:text-gray-300 transition hidden sm:inline"
-          >
+          <Link to="/addData" className="text-lg font-medium hover:text-gray-300 transition hidden sm:inline">
             Add User
           </Link>
         </div>
 
-        {/* Mobile Hamburger */}
+        <label className="text-lg font-medium hover:text-gray-300 transition hidden sm:inline">
+          {`TotalUsers : ${totalUsers}`}
+        </label>
+
+        {/* Hamburger */}
         <div className="sm:hidden">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-white text-2xl"
-          >
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white text-2xl">
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
 
-        {/* Right - Search & Menu */}
+        {/* Desktop Search and Menu */}
         <div className="hidden sm:flex items-center gap-4">
           {!hideSearch && (
             <>
-            
-            <input
-              ref={inputRef}
-              type="search"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              // onKeyDown={handleKeyDown}
-              className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
-            <BsSearch onClick={handleKeyDown}/>
+              <input
+                ref={inputRef}
+                type="search"
+                placeholder="Search name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              />
+              <BsSearch
+                onClick={handleSearch}
+                className="cursor-pointer text-white hover:text-gray-300"
+              />
             </>
           )}
-          {/* 3-dot dropdown */}
+
+          {/* 3-dot menu */}
           <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="text-white text-2xl"
-            >
+            <button onClick={() => setShowMenu(!showMenu)} className="text-white text-2xl">
               ⋮
             </button>
             {showMenu && (
@@ -142,7 +150,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile dropdown below nav */}
+      {/* Mobile Dropdown */}
       {mobileMenuOpen && (
         <div className="sm:hidden mt-3 flex flex-col gap-2">
           <Link
@@ -154,14 +162,20 @@ const Navbar = () => {
           </Link>
 
           {!hideSearch && (
-            <input
-              type="search"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
+            <>
+              <input
+                type="search"
+                placeholder="Search name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              />
+              <BsSearch
+                onClick={handleSearch}
+                className="cursor-pointer text-white hover:text-gray-300"
+              />
+            </>
           )}
 
           <button

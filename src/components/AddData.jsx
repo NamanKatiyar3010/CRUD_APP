@@ -13,7 +13,6 @@ import FloatingInput from "./FloatingInput.jsx";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-
 const UserForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,17 +27,19 @@ const UserForm = () => {
     name: yup
       .string()
       .required("Name is required")
-      .matches(/^[A-Za-z\s]{2,50}$/, "Name must be 2-50 characters and contain only letters and spaces"),
-  
+      .min(3, "Minimum 3 characters")
+      .max(50, "Maximum 50 characters")
+      .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters are allowed"),
+
     email: yup
       .string()
+      .email("Enter a valid email")
       .required("Email is required")
-      .email("Invalid email format")
       .matches(
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        "Enter a valid email"
+        /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+        "Enter Valid Email"
       ),
-  
+
     phone: yup
       .string()
       .required("Phone number is required")
@@ -46,18 +47,19 @@ const UserForm = () => {
         /^[6-9]\d{9}$/,
         "Phone number must be exactly 10 digits and start with 6, 7, 8, or 9"
       ),
-  
+
     location: yup
       .string()
       .required("Location is required")
-      .matches(
-        /^[A-Za-z\s,]{2,30}$/,
-        "Location must be 2-30 characters long and contain only letters, commas and spaces"
-      ),
-  
+      .min(3, "Minimum 3 characters")
+      .max(50, "Maximum 50 characters")
+      .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters are allowed"),
+
     about: yup
       .string()
-      .max(400, "About must be at most 400 characters"),
+      .max(400, "About must be at most 400 characters")
+      .min(3, "Minimum 3 characters")
+      .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters are allowed"),
   });
   const {
     register,
@@ -109,8 +111,21 @@ const UserForm = () => {
       });
       setFile(null);
       setStatus(false);
+      // document.title="CRUD-Add User";
     }
+    // document.title="CRUD-Update User";
   }, [isEditMode, dispatch, reset]);
+
+  useEffect(() => {
+    if (isEditMode) {
+      document.title = "CRUD Update User";
+    } else {
+      document.title = "CRUD Add User";
+    }
+    return () => {
+      document.title = "CRUD";
+    };
+  }, [isEditMode]);
 
   const onSubmit = async (formValues) => {
     try {
@@ -209,7 +224,7 @@ const UserForm = () => {
               Active Status
             </label>
           </div>
-  
+
           {/* File Upload */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -219,25 +234,33 @@ const UserForm = () => {
               type="file"
               accept="image/*"
               onChange={(e) => {
-                const selectedFile = e.target.files[0];
-                if (selectedFile && selectedFile.size > 3 * 1024 * 1024) {
-                  toast.error("🚫 File size should be less than 3MB");
+                const file = e.target.files[0];
+                // Reset first
+                if (!file) {
+                  setFile(null);
+                  return;
+                }
+                const validTypes = ["image/jpeg", "image/png"];
+                const maxSize = 3 * 1024 * 1024;
+                // Check type
+                if (!validTypes.includes(file.type)) {
+                  toast.error("Only JPEG, PNG images are allowed");
                   e.target.value = "";
                   setFile(null);
                   return;
                 }
-                setFile(selectedFile);
+                if (file.size > maxSize) {
+                  toast.error("File size must be less than 3MB");
+                  e.target.value = "";
+                  setFile(null);
+                  return;
+                }
+                setFile(file);
               }}
-              className="block w-full text-sm text-gray-700 dark:text-white 
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-600 file:text-white
-                hover:file:bg-blue-700
-                bg-gray-100 dark:bg-gray-700 rounded-md cursor-pointer"
+              className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
             />
           </div>
-  
+
           {(file || singleUser?.image) && (
             <div className="md:col-span-2 flex gap-4 items-center">
               {file && (
@@ -256,7 +279,7 @@ const UserForm = () => {
               )}
             </div>
           )}
-  
+
           <div className="md:col-span-2 flex justify-between mt-4">
             <button
               type="submit"
@@ -283,7 +306,6 @@ const UserForm = () => {
       </div>
     </div>
   );
-  
 };
 
 export default UserForm;

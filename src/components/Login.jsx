@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin, clearUserEmail } from "../slices/authSlice";
@@ -55,6 +55,13 @@ const Login = () => {
       toast.error("Login failed. Please check your credentials.");
     }
   };
+
+  useEffect(() => {
+    document.title = "CRUD-Login";
+    return () => {
+      document.title = "CRUD";
+    };
+  }, []);
 
   // const setTokenFunc = (getToken) => {
   //   setToken(getToken);

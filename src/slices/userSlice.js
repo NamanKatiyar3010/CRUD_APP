@@ -23,21 +23,18 @@ export const fetchUsers = createAsyncThunk(
 
 export const fetchSingleUser = createAsyncThunk(
   "users/fetchSingleUser",
-  async (id, thunkAPI) =>
-    apiThunkWrapper(async () => {
-      const res = await fetch(`${url}/users/${id}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch user");
-      return data;
-    }, thunkAPI)
+  async (id, thunkAPI) => {
+    return apiThunkWrapper(async () => {
+      const res = await axios.get(`${url}/users/${id}`);
+      return res.data;
+    }, thunkAPI);
+  }
 );
 
 export const addUser = createAsyncThunk(
   "users/addUser",
   async (formData, thunkAPI) =>
     apiThunkWrapper(async () => {
-      // console.log("running add");
-
       const res = await fetch(`${url}/users`, {
         method: "POST",
         body: formData,
@@ -50,35 +47,29 @@ export const addUser = createAsyncThunk(
 
 export const upDateUserStatus = createAsyncThunk(
   "users/updateStatus",
-  async ({ id, status }, thunkAPI) =>
-    apiThunkWrapper(async () => {
-      // console.log("runnig update");
-
-      const res = await fetch(`${url}/users/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to update status");
-      return data;
-    }, thunkAPI)
+  async ({ id, status }, thunkAPI) => {
+    return apiThunkWrapper(async () => {
+      const res = await axios.patch(
+        `${url}/users/${id}/status`,
+        { status },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return res.data;
+    }, thunkAPI);
+  }
 );
 
 export const deleteUser = createAsyncThunk(
   "users/deleteUser",
   async (id, thunkAPI) =>
     apiThunkWrapper(async () => {
-      // console.log("running delete");
-
-      const res = await fetch(`${url}/users/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to update status");
-      return data;
+      const res = await axios.delete(`${url}/users/${id}`);
+      return res.data;
     }, thunkAPI)
 );
+
 
 export const updateUser = createAsyncThunk(
   "user/updateUser",
@@ -174,21 +165,23 @@ const userSlice = createSlice({
       })
       //----------update user Status------------------
       .addCase(upDateUserStatus.pending, (state, action) => {
-        state.updatingUserId = action.meta.arg.id; 
-        state.error = null;
+        state.updatingUserId = action.meta.arg.id;
+        state.error = null; // Reset the error when the update starts
       })
       .addCase(upDateUserStatus.fulfilled, (state, action) => {
         state.updatingUserId = null;
         state.users = state.users.map((user) => {
           if (user._id === action.meta.arg.id) {
-            return { ...user, status: !user.status };
+            return { ...user, status: !user.status }; // Toggle the status
           }
           return user;
         });
       })
       .addCase(upDateUserStatus.rejected, (state, action) => {
-        state.updatingUserId = null; // ✅ Reset on error too
-        state.error = action.error.message;
+        state.updatingUserId = null;
+        state.error =
+          action.payload || action.error.message || "An error occurred";
+        console.log(state.error);
       })
 
       //----------delete user------------------

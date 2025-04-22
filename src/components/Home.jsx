@@ -147,12 +147,7 @@ const Home = () => {
   return (
     <div className="p-4">
       <Toaster position="top-right" />
-      {error ? (
-        <div className="text-red-500 mb-4">
-          <h3>⚠️ Failed to load data</h3>
-          <p>{error.message || "An unexpected error occurred."}</p>
-        </div>
-      ) : loading ? (
+      {loading ? (
         <p>Loading...</p>
       ) : filteredData.length === 0 ? (
         <div className="text-center p-8 text-gray-500">

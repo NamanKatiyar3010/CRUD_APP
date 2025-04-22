@@ -9,16 +9,29 @@ const Detail = () => {
   const dispatch = useDispatch();
 
   const { singleUser, loading, error } = useSelector((state) => state.users);
+  console.log(singleUser?"Single user":'null');
+  
 
   useEffect(() => {
     if (id) dispatch(fetchSingleUser(id));
+    // document.title = `CRUD-${singleUser?.name}`;}
 
     return () => {
       dispatch(clearSingleUser());
     };
   }, [id, dispatch]);
 
-  if (loading) return <p className="text-center text-lg mt-8">Loading user data...</p>;
+  useEffect(() => {
+    if (singleUser?.name) {
+      document.title = `CRUD - ${singleUser.name}`;
+    }
+    return () => {
+      document.title = "CRUD";
+    }
+  }, [singleUser]);
+  
+  if (loading)
+    return <p className="text-center text-lg mt-8">Loading user data...</p>;
 
   if (error)
     return (
@@ -48,6 +61,7 @@ const Detail = () => {
     );
 
   const user = singleUser;
+
 
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-wrap gap-6 items-start">

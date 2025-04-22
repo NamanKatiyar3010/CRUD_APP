@@ -19,11 +19,12 @@ const signUpSchema = yup.object().shape({
     .required("Name is required")
     .min(3, "Minimum 3 characters")
     .max(50, "Maximum 50 characters")
-    .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters and spaces allowed"),
+    .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters and space allowed"),
   email: yup
     .string()
     .email("Enter a valid email")
-    .required("Email is required"),
+    .required("Email is required")
+    .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,"Enter Valid Email"),
   phoneNumber: yup
     .string()
     .required("Phone number is required")
@@ -31,11 +32,15 @@ const signUpSchema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(8, "Minimum 8 characters")
-    .matches(/[a-z]/, "Must contain a lowercase letter")
-    .matches(/[A-Z]/, "Must contain an uppercase letter")
-    .matches(/\d/, "Must contain a number")
-    .matches(/[@$!%*?&#]/, "Must contain a special character"),
+    .min(8, "Password must be at least 8 characters long")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .matches(
+      /[!@#$%^&*]/,
+      "Password must contain at least one special character (!@#$%^&*)"
+    )
+    .matches(/^\S*$/, "Password must not contain spaces"),
   confirmPassword: yup
     .string()
     .required("Confirm password is required")
@@ -114,9 +119,13 @@ const SignUp = () => {
         .catch((err) => console.log(err));
     }
   }, [user]);
-  {
-    console.log(profile);
-  }
+
+  useEffect(() => {
+    document.title = "CRUD SignUp";
+    return () => {
+      document.title = "CRUD";
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
