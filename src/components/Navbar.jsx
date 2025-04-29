@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import { BsSearch } from "react-icons/bs";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
+import { useUserStore } from "./zustand/userStore";
 import { Toaster, toast } from "react-hot-toast";
 
 const Navbar = () => {
@@ -15,7 +21,7 @@ const Navbar = () => {
   const pathname = location.pathname;
   const menuRef = useRef(null);
   const inputRef = useRef(null);
-  const { totalUsers } = useSelector((state) => state.users);
+  const { totalUsers } = useUserStore();
 
   const hideSearch =
     pathname === "/addData" || /^\/users\/[^/]+$/.test(pathname);
@@ -91,10 +97,16 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Left Links */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-lg font-medium hover:text-gray-300 transition">
+          <Link
+            to="/"
+            className="text-lg font-medium hover:text-gray-300 transition"
+          >
             Home
           </Link>
-          <Link to="/addData" className="text-lg font-medium hover:text-gray-300 transition hidden sm:inline">
+          <Link
+            to="/addData"
+            className="text-lg font-medium hover:text-gray-300 transition hidden sm:inline"
+          >
             Add User
           </Link>
         </div>
@@ -105,7 +117,10 @@ const Navbar = () => {
 
         {/* Hamburger */}
         <div className="sm:hidden">
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white text-2xl">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-white text-2xl"
+          >
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
@@ -118,6 +133,7 @@ const Navbar = () => {
                 ref={inputRef}
                 type="search"
                 placeholder="Search name or email..."
+                maxLength={50}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -132,7 +148,10 @@ const Navbar = () => {
 
           {/* 3-dot menu */}
           <div className="relative" ref={menuRef}>
-            <button onClick={() => setShowMenu(!showMenu)} className="text-white text-2xl">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-white text-2xl"
+            >
               ⋮
             </button>
             {showMenu && (

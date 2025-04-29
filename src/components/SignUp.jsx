@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Toaster, toast } from "react-hot-toast";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { userSignUp, setUserEmail } from "../slices/authSlice";
+// import { userSignUp, setUserEmail } from "../slices/authSlice";
 import { FcGoogle } from "react-icons/fc";
 import FloatingInput from "./FloatingInput";
 import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import useAuthStore from "./zustand/authStore";
 
 // Yup validation schema
+
 const signUpSchema = yup.object().shape({
   fullName: yup
     .string()
@@ -22,6 +23,7 @@ const signUpSchema = yup.object().shape({
     .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters and space allowed"),
   email: yup
     .string()
+    .trim()
     .email("Enter a valid email")
     .required("Email is required")
     .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,"Enter Valid Email"),
@@ -49,9 +51,10 @@ const signUpSchema = yup.object().shape({
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [user, setUser] = useState();
   const [profile, setProfile] = useState();
+  const {userSignUp,setUserEmail} = useAuthStore();
 
   const {
     register,
@@ -73,8 +76,8 @@ const SignUp = () => {
   const onSubmit = async (formValue) => {
     try {
       delete formValue.confirmPassword;
-      await dispatch(userSignUp(formValue)).unwrap();
-      dispatch(setUserEmail(formValue.email));
+      await userSignUp(formValue);
+      setUserEmail(formValue.email);
       reset();
       navigate("/auth/login");
     } catch (error) {

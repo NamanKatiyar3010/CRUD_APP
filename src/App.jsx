@@ -10,10 +10,9 @@ import WrongPage from "./components/WrongPage";
 import AuthLayout from "./components/AuthLayout";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import PrivateRoute from "./components/PublicRoute"
 import { useOnlineStatus } from "./components/useOnlineStatus";
 import NoInternet from "./components/NoInterent";
-import { Toaster, toast } from "react-hot-toast";
+import { Toaster} from "react-hot-toast";
 
 const router = createBrowserRouter([
   {

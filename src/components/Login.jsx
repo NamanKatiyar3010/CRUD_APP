@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { userLogin, clearUserEmail } from "../slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import FloatingInput from "./FloatingInput";
 import { Toaster, toast } from "react-hot-toast";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import useAuthStore from "./zustand/authStore";
 
 // import { GoogleReCaptchaProvider, GoogleReCaptcha } from "react-google-recaptcha-v3";
 // Yup validation schema
@@ -23,11 +22,11 @@ const loginSchema = yup.object().shape({
 });
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
   const [token, setToken] = useState("");
-  const userEmail = useSelector((state) => state.auth.userEmail);
+  const { userEmail, userLogin, clearUserEmail } = useAuthStore();
 
   const {
     register,
@@ -45,8 +44,10 @@ const Login = () => {
 
   const onSubmit = async (formvalue) => {
     try {
-      const res = await dispatch(userLogin({ formvalue })).unwrap();
-      dispatch(clearUserEmail);
+      // console.log(formvalue);
+      
+      const res = await userLogin( formvalue );
+      clearUserEmail;
       navigate("/");
       reset();
     } catch (error) {

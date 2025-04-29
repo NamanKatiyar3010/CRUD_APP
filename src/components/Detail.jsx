@@ -1,25 +1,25 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchSingleUser, clearSingleUser } from "../slices/userSlice";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchSingleUser, clearSingleUser } from "../slices/userSlice";
+import { useUserStore } from "./zustand/userStore";
 
 const Detail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const {fetchSingleUser,clearSingleUser,singleUser,loading,error} = useUserStore();
 
-  const { singleUser, loading, error } = useSelector((state) => state.users);
-  console.log(singleUser?"Single user":'null');
-  
+  // const { singleUser, loading, error } = useSelector((state) => state.users);
+  // console.log(singleUser ? "Single user" : "null");
 
   useEffect(() => {
-    if (id) dispatch(fetchSingleUser(id));
-    // document.title = `CRUD-${singleUser?.name}`;}
+    if (id) fetchSingleUser(id);
 
     return () => {
-      dispatch(clearSingleUser());
+      clearSingleUser();
     };
-  }, [id, dispatch]);
+  }, [id]);
 
   useEffect(() => {
     if (singleUser?.name) {
@@ -27,9 +27,9 @@ const Detail = () => {
     }
     return () => {
       document.title = "CRUD";
-    }
+    };
   }, [singleUser]);
-  
+
   if (loading)
     return <p className="text-center text-lg mt-8">Loading user data...</p>;
 
@@ -62,12 +62,11 @@ const Detail = () => {
 
   const user = singleUser;
 
-
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-wrap gap-6 items-start">
       {/* Image Section */}
       <div className="flex-1 min-w-[250px] text-center">
-        {user.image ? (
+        {user.image && user.image!=="undefined"? (
           <img
             src={user.image}
             alt="User"

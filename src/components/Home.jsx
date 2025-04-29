@@ -1,17 +1,16 @@
 import Pagination from "./Pagination";
 import Table from "./Table";
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
-import {
-  fetchUsers,
-  resetUsersLoaded,
-  upDateUserStatus,
-  deleteUser,
-} from "../slices/userSlice";
+import { useSearchParams, useNavigate } from "react-router-dom";
+// import {
+//   fetchUsers,
+//   resetUsersLoaded,
+//   upDateUserStatus,
+//   deleteUser,
+// } from "../slices/userSlice";
 import PopupBox from "../PopupBox";
 import { Toaster, toast } from "react-hot-toast";
-
+import { useUserStore } from "./zustand/userStore";
 const Home = () => {
   const [isPopUpOpen, setPopUpOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -24,11 +23,15 @@ const Home = () => {
     loading,
     error,
     isUsersLoaded,
-  } = useSelector((state) => state.users);
+    resetUsersLoaded,
+    fetchUsers,
+    deleteUser,
+    updateUserStatus,
+  } = useUserStore();
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const limit = Math.min(Number(searchParams.get("limit")) || 10, 50);
@@ -36,17 +39,17 @@ const Home = () => {
   const searchText = searchParams.get("search") || "";
 
   useEffect(() => {
-    dispatch(resetUsersLoaded());
-  }, [page, limit, searchText, dispatch]);
+    resetUsersLoaded();
+  }, [page, limit, searchText, resetUsersLoaded]);
 
   useEffect(() => {
     const isPageOne = Number(page) === 1;
     const shouldFetch = !isUsersLoaded || (!isPageOne && data.length === 0);
 
     if (shouldFetch) {
-      dispatch(fetchUsers({ page, limit, search: searchText }));
+      fetchUsers({ page, limit, search: searchText });
     }
-  }, [dispatch, page, limit, searchText, isUsersLoaded, data.length]);
+  }, [page, limit, searchText, isUsersLoaded, data.length, fetchUsers]);
 
   const filteredData = data?.filter((item) => item?.name?.trim() !== "") || [];
   const totalPages = Math.ceil(totalData / parseInt(limit));
@@ -59,16 +62,14 @@ const Home = () => {
     // const actionResult = await dispatch(upDateUserStatus({ id, status }));
     // setStatusUpdateId(id);
     try {
-      const actionResult = await dispatch(
-        upDateUserStatus({ id, status })
-      ).unwrap();
-      if (upDateUserStatus.rejected.match(actionResult)) {
-        // First failure, show retry popup
-        setStatusRetryData({ id, status, attempts: 1 });
-      }
+      await updateUserStatus(id, status);
+      // if (updateUserStatus.rejected.match(ationResult)) {
+      //   // First failure, show retry popup
+      //   setStatusRetryData({ id, status, attempts: 1 });
+      // }
     } catch (err) {
       // setStatusUpdateId(null);
-      console.error(err);
+      // console.error(err);
     }
   };
 
@@ -102,9 +103,9 @@ const Home = () => {
   const confirmDelete = async () => {
     if (deleteId) {
       try {
-        await dispatch(deleteUser(deleteId));
-        dispatch(fetchUsers({ page, limit, search: searchText }));
-      } catch (error) {
+        await deleteUser(deleteId);
+        fetchUsers({ page, limit, search: searchText });
+      } catch (err) {
         toast.error("Failed to delete user. Please try again.");
       } finally {
         setDeleteId(null);
@@ -148,7 +149,27 @@ const Home = () => {
     <div className="p-4">
       <Toaster position="top-right" />
       {loading ? (
-        <p>Loading...</p>
+        <div className="text-center">
+          <div role="status">
+            <svg
+              aria-hidden="true"
+              class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
       ) : filteredData.length === 0 ? (
         <div className="text-center p-8 text-gray-500">
           <h3>😕 No data found</h3>
@@ -159,7 +180,7 @@ const Home = () => {
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <Table
               headers={headers}
-              loading={loading}
+              // loading={loading}
               data={updatedData}
               onUserClick={handleChange}
               onStatusToggle={handleStatusToggle}

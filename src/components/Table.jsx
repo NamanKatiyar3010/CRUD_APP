@@ -1,18 +1,21 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import { FiMoreVertical } from "react-icons/fi";
+import { useUserStore } from "./zustand/userStore";
 
 const Table = ({
   headers,
-  loading,
+  // loading,
   data,
   onUserClick,
   onStatusToggle,
   onDelete,
   onUpdate,
 }) => {
-  const statusId = useSelector((state) => state.users.updatingUserId);
+  // const statusId = useSelector((state) => state.users.updatingUserId);
+  const { updatingUserId,loading, childLoading } = useUserStore();
+  const statusId = updatingUserId;
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
+  // console.log(statusId, "status Id");
 
   const toggleDropdown = (index) => {
     setIsDropdownOpen(isDropdownOpen === index ? null : index);
