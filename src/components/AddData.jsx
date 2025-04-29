@@ -58,8 +58,8 @@ const UserForm = () => {
     about: yup
       .string()
       .max(400, "About must be at most 400 characters")
-      .min(3, "Minimum 3 characters")
-      .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters are allowed"),
+      .min(3, "Minimum 3 characters"),
+      // .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters are allowed"),
   });
   const {
     register,
@@ -138,10 +138,10 @@ const UserForm = () => {
 
       if (isEditMode) {
         await dispatch(updateUser({ id, formData }));
-        toast.success("✅ User updated successfully!");
+        toast.success("User updated successfully!");
       } else {
         await dispatch(addUser(formData)).unwrap();
-        toast.success("✅ User added successfully!");
+        toast.success("User added successfully!");
       }
 
       reset();
