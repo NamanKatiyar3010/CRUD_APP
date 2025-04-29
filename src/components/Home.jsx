@@ -37,7 +37,7 @@ const Home = () => {
 
   useEffect(() => {
     dispatch(resetUsersLoaded());
-  }, [page, limit, searchText, dispatch]);
+  }, [page, limit, searchText]);
 
   useEffect(() => {
     const isPageOne = Number(page) === 1;
@@ -46,7 +46,7 @@ const Home = () => {
     if (shouldFetch) {
       dispatch(fetchUsers({ page, limit, search: searchText }));
     }
-  }, [dispatch, page, limit, searchText, isUsersLoaded, data.length]);
+  }, [ page, limit, searchText, isUsersLoaded, data.length]);
 
   const filteredData = data?.filter((item) => item?.name?.trim() !== "") || [];
   const totalPages = Math.ceil(totalData / parseInt(limit));

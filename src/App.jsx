@@ -10,7 +10,7 @@ import WrongPage from "./components/WrongPage";
 import AuthLayout from "./components/AuthLayout";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import PrivateRoute from "./components/PublicRoute"
+
 import { useOnlineStatus } from "./components/useOnlineStatus";
 import NoInternet from "./components/NoInterent";
 import { Toaster, toast } from "react-hot-toast";
@@ -64,12 +64,12 @@ const router = createBrowserRouter([
 ]);
 function App() {
   const isOnline = useOnlineStatus();
-  console.log(isOnline,"onlinestatus");
-  
+  console.log(isOnline, "onlinestatus");
+
   return (
     <>
       <Provider store={store}>
-        {isOnline?<RouterProvider router={router}x />:<NoInternet/>}
+        {isOnline ? <RouterProvider router={router} x /> : <NoInternet />}
         <Toaster position="top-right" />
       </Provider>
     </>
@@ -77,4 +77,3 @@ function App() {
 }
 
 export default App;
-

@@ -44,7 +44,7 @@ const UserForm = () => {
       .string()
       .required("Phone number is required")
       .matches(
-        /^[6-9]\d{9}$/,
+        /^[0-9]\d{9}$/,
         "Phone number must be exactly 10 digits and start with 6, 7, 8, or 9"
       ),
 
