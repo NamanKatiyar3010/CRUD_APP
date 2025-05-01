@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import FloatingInput from "./FloatingInput";
+import FloatingInput from "../components/FloatingInput";
 import { Toaster, toast } from "react-hot-toast";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import useAuthStore from "./zustand/authStore";
+import useAuthStore from "../zustand/authStore";
 
-// import { GoogleReCaptchaProvider, GoogleReCaptcha } from "react-google-recaptcha-v3";
-// Yup validation schema
 const loginSchema = yup.object().shape({
   email: yup
     .string()
@@ -22,10 +20,6 @@ const loginSchema = yup.object().shape({
 });
 const Login = () => {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
-
-  const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
-  const [token, setToken] = useState("");
   const { userEmail, userLogin, clearUserEmail } = useAuthStore();
 
   const {
@@ -44,15 +38,11 @@ const Login = () => {
 
   const onSubmit = async (formvalue) => {
     try {
-      // console.log(formvalue);
-      
-      const res = await userLogin( formvalue );
+      await userLogin(formvalue);
       clearUserEmail;
       navigate("/");
       reset();
     } catch (error) {
-      setRefreshReCaptcha(!refreshReCaptcha);
-      // console.error("Login failed:", error);
       toast.error("Login failed. Please check your credentials.");
     }
   };
@@ -63,11 +53,6 @@ const Login = () => {
       document.title = "CRUD";
     };
   }, []);
-
-  // const setTokenFunc = (getToken) => {
-  //   setToken(getToken);
-  // };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
       <Toaster position="top-right" />
@@ -75,10 +60,7 @@ const Login = () => {
         <h2 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-6">
           Login to your account
         </h2>
-        {/* {console.log(!isValid)} */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Email */}
-
           <FloatingInput
             label="Email"
             name="email"
@@ -94,8 +76,6 @@ const Login = () => {
             register={register}
             error={errors.message}
           />
-
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting || !isValid}
@@ -118,14 +98,6 @@ const Login = () => {
             </span>
           </div>
         </form>
-
-        {/* ReCaptcha Placeholder */}
-        {/* <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_GOOGLE_RECAPTCHA_KEY}>
-          <GoogleReCaptcha
-            onVerify={setTokenFunc}
-            refreshReCaptcha={refreshReCaptcha}
-          />
-        </GoogleReCaptchaProvider> */}
       </div>
     </div>
   );

@@ -10,9 +10,10 @@ export const useUserStore = create((set, get) => ({
   isUsersLoaded: false,
   singleUser: null,
   loading: false,
-  childLoading: false,
+  // childLoading: false,
   error: null,
-  updatingUserId: "",
+  // updatingUserId: ""
+  rowLoadingId: {},
 
   // Clear Single user
   clearSingleUser: () => set({ singleUser: null }),
@@ -29,9 +30,13 @@ export const useUserStore = create((set, get) => ({
     const page = Number(queryParams.get("page")) || 1;
     const search = queryParams.get("search") || "";
 
-    const query = new URLSearchParams({ limit, page, search }).toString();
+    const query =
+      search !== ""
+        ? new URLSearchParams({ limit, page, search }).toString()
+        : new URLSearchParams({ limit, page }).toString();
 
     try {
+      // console.log(get().users, "from old");
       const res = await axios.get(`${url}/users?${query}`);
       set({
         users: res.data.data,
@@ -39,6 +44,7 @@ export const useUserStore = create((set, get) => ({
         isUsersLoaded: true,
         loading: false,
       });
+      // console.log(get().users, "from new");
     } catch (err) {
       set({
         loading: false,
@@ -64,8 +70,6 @@ export const useUserStore = create((set, get) => ({
   addUser: async (FormData) => {
     set({ loading: true, error: null });
     try {
-      console.log(FormData);
-      
       const resp = await axios.post(`${url}/users`, FormData);
       const data = resp.data;
       const { users, totalUsers } = get();
@@ -97,12 +101,13 @@ export const useUserStore = create((set, get) => ({
 
   // Update user Status
   updateUserStatus: async (id, status) => {
-    set({ childLoading: true, error: null, updatingUserId: id });
+    set((state) => ({
+      rowLoadingId: { ...state.rowLoadingId, [id]: true },
+      error: null,
+    }));
 
     try {
-      // console.log("inside try");
-
-      const resp = await axios.patch(
+      await axios.patch(
         `${url}/users/${id}/status`,
         { status },
         {
@@ -113,30 +118,56 @@ export const useUserStore = create((set, get) => ({
       const updatedUsers = users.map((user) =>
         user._id === id ? { ...user, status: !user.status } : user
       );
-      set({ users: updatedUsers, updatingUserId: null, childLoading: false });
+      set((state) => ({
+        users: updatedUsers,
+        rowLoadingId: { ...state.rowLoadingId, [id]: false },
+      }));
     } catch (err) {
       toast.error(err.response.data.message);
-      set({ childLoading: false, error: err.message });
+      set((state) => ({
+        error: err,
+        rowLoadingId: { ...state.rowLoadingId, [id]: false },
+      }));
     } finally {
-      set({ childLoading: false });
+      set((state) => ({ rowLoadingId: { ...state.rowLoadingId, [id]: false } }));
     }
   },
 
   // Delete User
-  deleteUser: async (id) => {
+  deleteUser: async (id, navigate, location) => {
     set({ loading: true, error: null });
     try {
       await axios.delete(`${url}/users/${id}`);
 
       const { users, totalUsers } = get();
+      const currentParams = new URLSearchParams(location.search);
+      let currentPage = parseInt(currentParams.get("page") || "1");
+      // const limit = parseInt(currentParams.get("limit") || "10");
+      const updatedUsers = users.filter((user) => user._id !== id);
+      const updatedTotalUsers = totalUsers - 1;
+
+      //--If no users left on the current page, go back to previous page----
+      const isPageEmpty = updatedUsers.length === 0 && currentPage > 1;
+      console.log(isPageEmpty);
+
+      if (isPageEmpty) {
+        currentPage -= 1;
+        currentParams.set("page", currentPage);
+        navigate(`${location.pathname}?${currentParams.toString()}`, {
+          replace: true,
+        });
+      }
+
       set({
-        users: users.filter((user) => user._id !== id),
-        totalUsers: totalUsers - 1,
+        users: updatedUsers,
+        totalUsers: updatedTotalUsers,
         loading: false,
       });
+
+      toast.success("User deleted successfully!");
     } catch (error) {
-      toast.error(error.response.data.message);
-      set({ loading: false, error: error.message || "An error occurred" });
+      toast.error(error.response?.data?.message || "An error occurred");
+      set({ loading: false, error: error.message });
     }
   },
 

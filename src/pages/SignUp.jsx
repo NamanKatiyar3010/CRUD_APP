@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Toaster, toast } from "react-hot-toast";
-// import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-// import { userSignUp, setUserEmail } from "../slices/authSlice";
-import { FcGoogle } from "react-icons/fc";
-import FloatingInput from "./FloatingInput";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
-import useAuthStore from "./zustand/authStore";
+import FloatingInput from "../components/FloatingInput";
+import useAuthStore from "../zustand/authStore";
 
 // Yup validation schema
-
 const signUpSchema = yup.object().shape({
   fullName: yup
     .string()
@@ -26,7 +20,10 @@ const signUpSchema = yup.object().shape({
     .trim()
     .email("Enter a valid email")
     .required("Email is required")
-    .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,"Enter Valid Email"),
+    .matches(
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+      "Enter Valid Email"
+    ),
   phoneNumber: yup
     .string()
     .required("Phone number is required")
@@ -51,10 +48,7 @@ const signUpSchema = yup.object().shape({
 
 const SignUp = () => {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
-  const [user, setUser] = useState();
-  const [profile, setProfile] = useState();
-  const {userSignUp,setUserEmail} = useAuthStore();
+  const { userSignUp, setUserEmail } = useAuthStore();
 
   const {
     register,
@@ -81,9 +75,6 @@ const SignUp = () => {
       reset();
       navigate("/auth/login");
     } catch (error) {
-      console.log("Signup failed", error);
-
-      // If error is coming from rejectWithValue, it will be the full object
       const message = error?.message || "Signup failed";
       const apiError = error?.error;
 
@@ -94,34 +85,6 @@ const SignUp = () => {
       }
     }
   };
-
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      console.log("googleSignIn", tokenResponse);
-      setUser(tokenResponse);
-    },
-    onError: () => {
-      console.log("error Something fishy");
-    },
-  });
-  useEffect(() => {
-    if (user) {
-      axios
-        .get(
-          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
-          {
-            headers: {
-              Authorization: `Bearer ${user.access_token}`,
-              Accept: "application/json",
-            },
-          }
-        )
-        .then((res) => {
-          setProfile(res.data);
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [user]);
 
   useEffect(() => {
     document.title = "CRUD SignUp";
@@ -196,21 +159,6 @@ const SignUp = () => {
           or
           <hr className="border w-full" />
         </div>
-
-        <button
-          type="button"
-          className="w-full flex items-center justify-center gap-3 border py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          onClick={() => {
-            console.log("Google SignIn");
-
-            handleGoogleLogin();
-          }}
-        >
-          <FcGoogle size={20} />
-          <span className="text-sm font-medium text-gray-700 dark:text-white">
-            Sign Up with Google
-          </span>
-        </button>
 
         <p className="text-sm text-center text-gray-600 dark:text-gray-300 mt-2">
           Already have an account?{" "}

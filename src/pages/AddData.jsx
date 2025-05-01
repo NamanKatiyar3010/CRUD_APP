@@ -3,10 +3,10 @@ import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 
 import { useNavigate, useParams } from "react-router-dom";
-import FloatingInput from "./FloatingInput.jsx";
+import FloatingInput from "../components/FloatingInput"
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useUserStore } from "./zustand/userStore";
+import { useUserStore } from "../zustand/userStore";
 // import addUser from "./zustand/userStore.js"
 
 const UserForm = () => {
@@ -152,11 +152,11 @@ const UserForm = () => {
   if (isEditMode && loading) {
     return (
       <>
-        <div class="text-center">
+        <div className="text-center">
           <div role="status">
             <svg
               aria-hidden="true"
-              class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"

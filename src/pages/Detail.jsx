@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 // import { useDispatch, useSelector } from "react-redux";
 // import { fetchSingleUser, clearSingleUser } from "../slices/userSlice";
-import { useUserStore } from "./zustand/userStore";
+import { useUserStore } from "../zustand/userStore";
 
 const Detail = () => {
   const { id } = useParams();

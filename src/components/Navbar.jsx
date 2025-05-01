@@ -6,10 +6,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
-import { BsSearch } from "react-icons/bs";
-// import { useSelector } from "react-redux";
-import { useUserStore } from "./zustand/userStore";
-import { Toaster, toast } from "react-hot-toast";
+import { useUserStore } from "../zustand/userStore";
+import { toast } from "react-hot-toast";
 
 const Navbar = () => {
   const [search, setSearch] = useState("");

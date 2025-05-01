@@ -1,37 +1,29 @@
-import Pagination from "./Pagination";
-import Table from "./Table";
+import Pagination from "../components/Pagination";
+import Table from "../components/Table";
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-// import {
-//   fetchUsers,
-//   resetUsersLoaded,
-//   upDateUserStatus,
-//   deleteUser,
-// } from "../slices/userSlice";
-import PopupBox from "../PopupBox";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+
+import PopupBox from "../components/PopupBox";
 import { Toaster, toast } from "react-hot-toast";
-import { useUserStore } from "./zustand/userStore";
+import { useUserStore } from "../zustand/userStore";
 const Home = () => {
   const [isPopUpOpen, setPopUpOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [statusRetryData, setStatusRetryData] = useState(null); // { id, status, attempts }
-  // const [statusUpdateId, setStatusUpdateId] = useState(null);
-
+  
   const {
     users: data,
     totalUsers: totalData,
     loading,
-    error,
     isUsersLoaded,
     resetUsersLoaded,
     fetchUsers,
     deleteUser,
     updateUserStatus,
+    totalUsers
   } = useUserStore();
 
-  // const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const location = useLocation();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const limit = Math.min(Number(searchParams.get("limit")) || 10, 50);
@@ -48,10 +40,11 @@ const Home = () => {
 
     if (shouldFetch) {
       fetchUsers({ page, limit, search: searchText });
+      console.log("fetching data");
     }
   }, [page, limit, searchText, isUsersLoaded, data.length, fetchUsers]);
 
-  const filteredData = data?.filter((item) => item?.name?.trim() !== "") || [];
+  const filteredData = data?.filter((item) => item?.name?.trim() !== "");
   const totalPages = Math.ceil(totalData / parseInt(limit));
 
   const handleChange = (id) => {
@@ -63,37 +56,13 @@ const Home = () => {
     // setStatusUpdateId(id);
     try {
       await updateUserStatus(id, status);
-      // if (updateUserStatus.rejected.match(ationResult)) {
-      //   // First failure, show retry popup
-      //   setStatusRetryData({ id, status, attempts: 1 });
-      // }
+
     } catch (err) {
       // setStatusUpdateId(null);
       // console.error(err);
     }
   };
 
-  // const confirmStatusRetry = async () => {
-  //   if (!statusRetryData) return;
-
-  //   const { id, status, attempts } = statusRetryData;
-  //   const actionResult = await dispatch(upDateUserStatus({ id, status }));
-
-  //   if (upDateUserStatus.rejected.match(actionResult)) {
-  //     if (attempts + 1 < 3) {
-  //       setStatusRetryData({ id, status, attempts: attempts + 1 });
-  //     } else {
-  //       alert("Max retry attempts reached.");
-  //       setStatusRetryData(null);
-  //     }
-  //   } else {
-  //     setStatusRetryData(null);
-  //   }
-  // };
-
-  // const cancelStatusRetry = () => {
-  //   setStatusRetryData(null);
-  // };
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -103,8 +72,7 @@ const Home = () => {
   const confirmDelete = async () => {
     if (deleteId) {
       try {
-        await deleteUser(deleteId);
-        fetchUsers({ page, limit, search: searchText });
+        await deleteUser(deleteId,navigate,location);
       } catch (err) {
         toast.error("Failed to delete user. Please try again.");
       } finally {
@@ -153,7 +121,7 @@ const Home = () => {
           <div role="status">
             <svg
               aria-hidden="true"
-              class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -167,10 +135,10 @@ const Home = () => {
                 fill="currentFill"
               />
             </svg>
-            <span class="sr-only">Loading...</span>
+            <span className="sr-only">Loading...</span>
           </div>
         </div>
-      ) : filteredData.length === 0 ? (
+      ) : data?.length === 0 ? (
         <div className="text-center p-8 text-gray-500">
           <h3>😕 No data found</h3>
           <p>Try adjusting your search or filters.</p>
@@ -180,7 +148,7 @@ const Home = () => {
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <Table
               headers={headers}
-              // loading={loading}
+              loading={loading}
               data={updatedData}
               onUserClick={handleChange}
               onStatusToggle={handleStatusToggle}

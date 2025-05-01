@@ -1,21 +1,21 @@
 import React, { useState } from "react";
-import { FiMoreVertical } from "react-icons/fi";
-import { useUserStore } from "./zustand/userStore";
+import { MoreVertical } from "lucide-react";
+import { useUserStore } from "../zustand/userStore";
 
 const Table = ({
   headers,
-  // loading,
+  loading,
   data,
   onUserClick,
   onStatusToggle,
   onDelete,
   onUpdate,
 }) => {
-  // const statusId = useSelector((state) => state.users.updatingUserId);
-  const { updatingUserId,loading, childLoading } = useUserStore();
-  const statusId = updatingUserId;
+  const { rowLoadingId } = useUserStore();
+  console.log(rowLoadingId,"loading Id");
+  
+  // const statusId = updatingUserId;
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
-  // console.log(statusId, "status Id");
 
   const toggleDropdown = (index) => {
     setIsDropdownOpen(isDropdownOpen === index ? null : index);
@@ -78,7 +78,7 @@ const Table = ({
                     >
                       {isStatusButton ? (
                         <div className="relative w-12 h-6 flex items-center justify-center">
-                          {statusId === value.id ? (
+                          {rowLoadingId?.[value.id] ? (
                             <div className="flex items-center justify-center w-6 h-6">
                               <div className="animate-spin border-2 border-t-transparent border-gray-500 rounded-full w-4 h-4" />
                             </div>
@@ -139,7 +139,7 @@ const Table = ({
                               className="text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200"
                               onClick={() => toggleDropdown(index)}
                             >
-                              <FiMoreVertical size={20} />
+                              <MoreVertical size={20} />
                             </button>
                             {isDropdownOpen === index && (
                               <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg z-10">

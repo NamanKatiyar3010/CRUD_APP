@@ -21,8 +21,6 @@ const useAuthStore = create((set) => ({
   userLogin: async (formValue) => {
     set({ loading: true, error: null });
     try {
-      // console.log(formValue);
-      
       const res = await axios.post(`${url}/auth/login`, formValue);
       const token = res.data?.data?.token;
       sessionStorage.setItem("token", token);
