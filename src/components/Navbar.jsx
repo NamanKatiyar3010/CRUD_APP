@@ -5,7 +5,7 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X, Search } from "lucide-react";
 import { useUserStore } from "../zustand/userStore";
 import { toast } from "react-hot-toast";
 
@@ -137,7 +137,7 @@ const Navbar = () => {
                 onKeyDown={handleKeyDown}
                 className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
-              <BsSearch
+              <Search
                 onClick={handleSearch}
                 className="cursor-pointer text-white hover:text-gray-300"
               />
@@ -188,7 +188,7 @@ const Navbar = () => {
                 onKeyDown={handleKeyDown}
                 className="px-3 py-2 bg-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
-              <BsSearch
+              <Search
                 onClick={handleSearch}
                 className="cursor-pointer text-white hover:text-gray-300"
               />
