@@ -9,7 +9,7 @@ import { useUserStore } from "../zustand/userStore";
 const Home = () => {
   const [isPopUpOpen, setPopUpOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  
+
   const {
     users: data,
     totalUsers: totalData,
@@ -19,7 +19,6 @@ const Home = () => {
     fetchUsers,
     deleteUser,
     updateUserStatus,
-    totalUsers
   } = useUserStore();
 
   const navigate = useNavigate();
@@ -56,13 +55,11 @@ const Home = () => {
     // setStatusUpdateId(id);
     try {
       await updateUserStatus(id, status);
-
     } catch (err) {
       // setStatusUpdateId(null);
       // console.error(err);
     }
   };
-
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -72,7 +69,7 @@ const Home = () => {
   const confirmDelete = async () => {
     if (deleteId) {
       try {
-        await deleteUser(deleteId,navigate,location);
+        await deleteUser(deleteId, navigate, location);
       } catch (err) {
         toast.error("Failed to delete user. Please try again.");
       } finally {
@@ -93,7 +90,7 @@ const Home = () => {
     { name: "Status" },
     { name: "Actions" },
   ];
-
+  // creating data that would be shown to table
   const updatedData = filteredData.map((obj, index) => ({
     sNo: {
       text: (parseInt(page) - 1) * parseInt(limit) + index + 1,
@@ -154,7 +151,6 @@ const Home = () => {
               onStatusToggle={handleStatusToggle}
               onUpdate={handleUpdate}
               onDelete={handleDelete}
-              // statusUpdateId={statusUpdateId}
             />
           </div>
           <Pagination
@@ -166,8 +162,7 @@ const Home = () => {
           />
         </>
       )}
-
-      {/* 🧾 Delete Confirmation Popup */}
+      {/* // pop up for delete confirmation */}
       <PopupBox
         isOpen={isPopUpOpen}
         onClose={() => setPopUpOpen(false)}
@@ -194,21 +189,6 @@ const Home = () => {
           undone.
         </p>
       </PopupBox>
-
-      {/* <PopupBox
-        isOpen={!!statusRetryData}
-        onClose={cancelStatusRetry}
-        title="Status Update Failed"
-        footer={
-          <>
-            <button onClick={cancelStatusRetry}>Cancel</button>
-            <button onClick={confirmStatusRetry}>Retry</button>
-          </>
-        }
-      >
-        <p>Failed to update status. Do you want to retry?</p>
-        <p>Attempt {statusRetryData?.attempts} of 3</p>
-      </PopupBox> */}
     </div>
   );
 };

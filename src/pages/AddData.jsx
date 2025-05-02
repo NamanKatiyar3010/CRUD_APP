@@ -3,10 +3,11 @@ import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 
 import { useNavigate, useParams } from "react-router-dom";
-import FloatingInput from "../components/FloatingInput"
+import FloatingInput from "../components/FloatingInput";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useUserStore } from "../zustand/userStore";
+import FloatingTextarea from "../components/FloatingTextarea";
 // import addUser from "./zustand/userStore.js"
 
 const UserForm = () => {
@@ -35,13 +36,14 @@ const UserForm = () => {
       .email("Enter a valid email")
       .required("Email is required")
       .matches(
-        /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
-        "Enter Valid Email"
+        /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook|hotmail|protonmail)\.com$/,
+        "email allowed are [Gmail, Yahoo, Outlook, hotmail, protonmail]."
       ),
 
     phone: yup
       .string()
       .required("Phone number is required")
+      .max(10, "Maximum 10 characters allowed")
       .matches(/^[0-9]\d{9}$/, "Phone number must be exactly 10 digits."),
 
     location: yup
@@ -55,7 +57,6 @@ const UserForm = () => {
       .string()
       .max(400, "About must be at most 400 characters")
       .min(3, "Minimum 3 characters"),
-    // .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters are allowed"),
   });
   const {
     register,
@@ -107,9 +108,7 @@ const UserForm = () => {
       });
       setFile(null);
       setStatus(false);
-      // document.title="CRUD-Add User";
     }
-    // document.title="CRUD-Update User";
   }, [isEditMode, reset]);
 
   useEffect(() => {
@@ -134,10 +133,8 @@ const UserForm = () => {
 
       if (isEditMode) {
         await updateUser({ id, formData });
-        // toast.success("User updated successfully!");
       } else {
         await addUser(formData);
-        // toast.success("User added successfully!");
       }
       reset();
       setFile(null);
@@ -212,6 +209,7 @@ const UserForm = () => {
             label="Contact Number"
             name="phone"
             type="number"
+            max="9999999999"
             register={register}
             maxLength={10}
             error={errors.phone}
@@ -224,10 +222,17 @@ const UserForm = () => {
             maxLength={30}
             error={errors.location}
           />
-          <FloatingInput
+          {/* <FloatingInput
             label="About"
             name="about"
             type="textarea"
+            register={register}
+            maxLength={400}
+            error={errors.about}
+          /> */}
+          <FloatingTextarea
+            label="About"
+            name="about"
             register={register}
             maxLength={400}
             error={errors.about}

@@ -131,7 +131,7 @@ const Navbar = () => {
                 ref={inputRef}
                 type="search"
                 placeholder="Search name or email..."
-                maxLength={50}
+                maxLength={45}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyDown}

@@ -7,6 +7,7 @@ const FloatingInput = ({
   type,
   register,
   error,
+  max,
   maxLength,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,12 +19,24 @@ const FloatingInput = ({
         type={isPassword && showPassword ? "text" : type}
         placeholder=" "
         maxLength={maxLength}
+        inputMode={type === "number" ? "numeric" : undefined}
+        pattern={type === "number" ? "\\d*" : undefined}
+        onInput={(e) => {
+          if (type === "number") {
+            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+          }
+        }}
+        max={max}
         {...register(name)}
         id={name}
         className={`peer w-full px-3.5 pt-4 pb-2 text-sm border rounded-md bg-transparent
           outline-none transition-all pr-10
           dark:text-white dark:border-gray-600 dark:focus:border-blue-500
-          ${error ? "border-rose-500 focus:border-rose-500" : "focus:border-blue-500"}`}
+          ${
+            error
+              ? "border-rose-500 focus:border-rose-500"
+              : "focus:border-blue-500"
+          }`}
       />
 
       <label
@@ -31,7 +44,9 @@ const FloatingInput = ({
         className={`absolute left-3 -top-2.5 text-xs px-1 transition-all bg-white dark:bg-gray-800
           peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
           peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-500 
-          ${error ? "text-rose-500 peer-focus:text-rose-500" : "text-gray-500"}`}
+          ${
+            error ? "text-rose-500 peer-focus:text-rose-500" : "text-gray-500"
+          }`}
       >
         {label}
       </label>
@@ -45,9 +60,7 @@ const FloatingInput = ({
         </div>
       )}
 
-      {error && (
-        <p className="text-xs text-rose-600 mt-1">{error.message}</p>
-      )}
+      {error && <p className="text-xs text-rose-600 mt-1">{error.message}</p>}
     </div>
   );
 };
