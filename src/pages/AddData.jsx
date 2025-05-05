@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
-
 import { useNavigate, useParams } from "react-router-dom";
 import FloatingInput from "../components/FloatingInput";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useUserStore } from "../zustand/userStore";
 import FloatingTextarea from "../components/FloatingTextarea";
-// import addUser from "./zustand/userStore.js"
+
 
 const UserForm = () => {
-  // const dispatch = useDispatch();
   const { addUser, updateUser, fetchSingleUser, clearSingleUser, error } =
     useUserStore();
 
@@ -167,7 +165,7 @@ const UserForm = () => {
                 fill="currentFill"
               />
             </svg>
-            <span class="sr-only"></span>
+            <span className="sr-only"></span>
           </div>
         </div>
 

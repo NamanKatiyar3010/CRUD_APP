@@ -12,9 +12,7 @@ const Table = ({
   onUpdate,
 }) => {
   const { rowLoadingId } = useUserStore();
-  console.log(rowLoadingId,"loading Id");
-  
-  // const statusId = updatingUserId;
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
 
   const toggleDropdown = (index) => {

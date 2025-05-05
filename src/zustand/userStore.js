@@ -61,7 +61,7 @@ export const useUserStore = create((set, get) => ({
       const res = await axios.get(`${url}/users/${id}`);
       set({ singleUser: res.data.data, loading: false });
     } catch (err) {
-      toast.error(err.response.data.message);
+      toast.error("User not found!");
       set({ loading: false, error: err.message });
     }
   },

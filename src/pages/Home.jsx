@@ -29,9 +29,9 @@ const Home = () => {
   const page = searchParams.get("page") || 1;
   const searchText = searchParams.get("search") || "";
 
-  useEffect(() => {
-    resetUsersLoaded();
-  }, [page, limit, searchText, resetUsersLoaded]);
+  // useEffect(() => {
+  //   resetUsersLoaded();
+  // }, [page, limit, searchText, resetUsersLoaded]);
 
   useEffect(() => {
     const isPageOne = Number(page) === 1;
@@ -39,7 +39,7 @@ const Home = () => {
 
     if (shouldFetch) {
       fetchUsers({ page, limit, search: searchText });
-      console.log("fetching data");
+      // console.log("fetching data");
     }
   }, [page, limit, searchText, isUsersLoaded, data.length, fetchUsers]);
 

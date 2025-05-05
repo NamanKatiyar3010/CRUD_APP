@@ -1,25 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-// import { fetchSingleUser, clearSingleUser } from "../slices/userSlice";
 import { useUserStore } from "../zustand/userStore";
 
 const Detail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const {fetchSingleUser,clearSingleUser,singleUser,loading,error} = useUserStore();
 
-  // const { singleUser, loading, error } = useSelector((state) => state.users);
-  // console.log(singleUser ? "Single user" : "null");
+
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (id) fetchSingleUser(id);
-
+    if (!hasFetched.current && id) {
+      fetchSingleUser(id);
+      hasFetched.current = true;
+    }
     return () => {
       clearSingleUser();
     };
-  }, [id]);
+  }, [clearSingleUser, fetchSingleUser, id]);
+
 
   useEffect(() => {
     if (singleUser?.name) {
@@ -37,7 +37,7 @@ const Detail = () => {
     return (
       <div className="text-red-600 text-center p-6">
         <h3 className="text-2xl font-semibold">⚠️ Error loading user</h3>
-        <p className="mb-4">{error}</p>
+        <p className="mb-4">No User Found!</p>
         <button
           onClick={() => navigate("/")}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"

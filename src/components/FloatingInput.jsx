@@ -23,6 +23,8 @@ const FloatingInput = ({
         pattern={type === "number" ? "\\d*" : undefined}
         onInput={(e) => {
           if (type === "number") {
+            console.log(e.target.value);
+            
             e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
           }
         }}
