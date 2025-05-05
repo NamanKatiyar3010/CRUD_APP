@@ -29,9 +29,9 @@ const Home = () => {
   const page = searchParams.get("page") || 1;
   const searchText = searchParams.get("search") || "";
 
-  // useEffect(() => {
-  //   resetUsersLoaded();
-  // }, [page, limit, searchText, resetUsersLoaded]);
+  useEffect(() => {
+    resetUsersLoaded();
+  }, [page, limit, searchText, resetUsersLoaded]);
 
   useEffect(() => {
     const isPageOne = Number(page) === 1;
